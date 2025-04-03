@@ -3,6 +3,7 @@ import config from './config/env.js';
 import authRouter from './routes/auth.routes.js';
 import { getUsers } from './controllers/auth.controller.js';
 import cors from 'cors';
+import { errorHandler } from './middlewares/errorHandler.middleware.js';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(cors())
 // }));
 
 app.use('/api/auth', authRouter)
+app.use(errorHandler)
 
 app.listen(config.port, () => {
   console.log(`Server running on port ${config.port}`);
