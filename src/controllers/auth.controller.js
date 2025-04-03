@@ -3,7 +3,9 @@ import { db } from "../config/db.js";
 import { User } from "../models/User.js";
 
 
-export const register = async (req, res, next) => {}
+export const register = async (req, res, next) => {
+    console.log(req.body)
+}
 
 export const getUsers = async (req, res) => {
     try {
