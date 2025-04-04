@@ -8,8 +8,8 @@ const authRouter = Router();
 
 authRouter.post('/register', validateRequest(registerSchema), register)
 authRouter.post('/login', validateRequest(loginSchema), login)
-authRouter.get('/users', authorize, (req, res) => {
-    res.json({ user: req.user})
+authRouter.get('/user', authorize, (req, res) => {
+    res.json(req.user)
 })
 
 export default authRouter
