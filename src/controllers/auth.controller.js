@@ -3,19 +3,25 @@ import { db } from "../config/db.js";
 import { User } from "../models/User.js";
 import bcrypt from 'bcrypt';
 import { eq } from "drizzle-orm";
+import jwt from 'jsonwebtoken';
+import config from "../config/env.js";
 
 export const login = async (req, res, next) => {
     const { email, password } = req.body
     try {
         const user = (await db.select().from(User).where(eq(User.email, email)))[0]
-        if (!user) {
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             throw new Error('INVALID_CREDENTIALS')
         }
-        const isMatch = await bcrypt.compare(password, user.password)
-        if (!isMatch) {
-            throw new Error('INVALID_CREDENTIALS')
+        if (user.isBlocked) {
+            throw new Error('BLOCKED')
         }
-        res.status(200).json({ message: 'Login successful', user })
+        const token = jwt.sign(
+            { id: user.id, email: user.email },
+            config.secretKey,
+            { expiresIn: '1h' }
+        )
+        res.json({ token })
     } catch (error) {
         next(error)
     }
