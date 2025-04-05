@@ -21,20 +21,31 @@ export const login = async (req, res, next) => {
             config.secretKey,
             { expiresIn: '1h' }
         )
-        console.log(token)
-        console.log(config.nodeEnv)
-        // res.json({ token })
         res.cookie('token', token, {
             httpOnly: true,
-            secure: config.nodeEnv === 'production', // only HTTPS in prod
-            sameSite: 'None', // or 'strict' depending on needs
-            maxAge: 60 * 60 * 1000, // 1 hour
+            secure: config.nodeEnv === 'production', 
+            sameSite: config.nodeEnv === 'production' ? 'None' : 'lax', 
+            maxAge: 60 * 60 * 1000,
         })
         res.status(200).json({ message: 'Logged in successfully' });
     } catch (error) {
         next(error)
     }
 }
+
+export const logout = async (req, res, next) => {
+    try {
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: config.nodeEnv === 'production',
+            sameSite: config.nodeEnv === 'production' ? 'None' : 'lax', 
+        })
+        res.status(200).json({ message: 'Logged out successfully' })
+    } catch (error) {
+        next(error)
+    }
+}
+
 
 export const register = async (req, res, next) => {
     const { name, email, password } = req.body 
