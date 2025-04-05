@@ -5,6 +5,7 @@ import cors from 'cors';
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import usersRouter from './routes/users.routes.js';
 import cookieParser from 'cookie-parser';
+import adminRouter from './routes/admin.routes.js';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(cors({
 
 app.use('/api/auth', authRouter)
 app.use('/api/users', usersRouter)
+app.use('/api/admin', adminRouter)
 
 app.use(errorHandler)
 
