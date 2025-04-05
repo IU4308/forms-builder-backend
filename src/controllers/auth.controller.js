@@ -22,11 +22,12 @@ export const login = async (req, res, next) => {
             { expiresIn: '1h' }
         )
         console.log(token)
+        console.log(config.nodeEnv)
         // res.json({ token })
         res.cookie('token', token, {
             httpOnly: true,
             secure: config.nodeEnv === 'production', // only HTTPS in prod
-            sameSite: 'lax', // or 'strict' depending on needs
+            sameSite: 'None', // or 'strict' depending on needs
             maxAge: 60 * 60 * 1000, // 1 hour
         })
         res.status(200).json({ message: 'Logged in successfully' });
