@@ -5,15 +5,12 @@ import { User } from "../models/User.js";
 import jwt from 'jsonwebtoken';
 
 export const authorize = async (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
+    console.log(req.cookies)
+    const token = req.cookies.token;
+    if (!token) {
         return next()
     }
     try {
-        const token = authHeader.split(' ')[1];
-        if (!token) {
-            next()
-        }
         const decoded = jwt.verify(token, config.secretKey);
         const user = (await db.select().from(User).where(eq(User.id, decoded.id)))[0];
 

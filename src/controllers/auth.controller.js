@@ -9,6 +9,7 @@ export const login = async (req, res, next) => {
     const { email, password } = req.body
     try {
         const user = (await db.select().from(User).where(eq(User.email, email)))[0]
+        console.log(user)
         if (!user || !(await bcrypt.compare(password, user.password))) {
             throw new Error('INVALID_CREDENTIALS')
         }
@@ -20,7 +21,15 @@ export const login = async (req, res, next) => {
             config.secretKey,
             { expiresIn: '1h' }
         )
-        res.json({ token })
+        console.log(token)
+        // res.json({ token })
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: config.nodeEnv === 'production', // only HTTPS in prod
+            sameSite: 'lax', // or 'strict' depending on needs
+            maxAge: 60 * 60 * 1000, // 1 hour
+        })
+        res.status(200).json({ message: 'Logged in successfully' });
     } catch (error) {
         next(error)
     }
