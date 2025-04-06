@@ -18,7 +18,7 @@ export const authorize = async (req, res, next) => {
         // if (user.isBlocked) {
         //     throw new Error('BLOCKED')
         // }
-        req.user = { userId: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin };
+        req.user = { userId: user.id, name: user.name, email: user.email, isBlocked: user.isBlocked, isAdmin: user.isAdmin };
         next()
     } catch (error) {
         next(error)

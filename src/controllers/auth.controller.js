@@ -27,6 +27,9 @@ export const login = async (req, res, next) => {
             sameSite: config.nodeEnv === 'production' ? 'None' : 'lax', 
             maxAge: 60 * 60 * 1000,
         })
+        await db.update(User)
+            .set({ lastLogin: new Date() })
+            .where(eq(User.id, user.id));
         res.status(200).json({ message: 'Logged in successfully' });
     } catch (error) {
         next(error)

@@ -8,7 +8,7 @@ const updateStatus = (field, value) => async (req, res, next) => {
         await db.update(User)
             .set({ [field]: value })
             .where(inArray(User.id, selectedIds));
-        res.json({ message: `${field} set to ${value} for selected users` });
+        res.json({ message: `The operation has been successfull` });
     } catch (error) {
         next (error)
     }
