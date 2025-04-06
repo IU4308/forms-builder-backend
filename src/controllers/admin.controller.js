@@ -2,16 +2,30 @@ import { db } from "../config/db.js";
 import { User } from "../models/User.js";
 import { inArray } from "drizzle-orm";
 
-export const block = async (req, res, next) => {
-    const selectedIds = req.body
-    console.log(selectedIds)
+const updateStatus = (field, value) => async (req, res, next) => {
+    const selectedIds = req.body;
     try {
         await db.update(User)
-            .set({ isBlocked: true })
-            .where(inArray(User.id, selectedIds))
-        res.json({ message: 'Block operation has been successful' });
+            .set({ [field]: value })
+            .where(inArray(User.id, selectedIds));
+        res.json({ message: `${field} set to ${value} for selected users` });
     } catch (error) {
-        console.log("Database error ", error)
-        next(error)
+        next (error)
     }
 }
+
+export const deleteUsers = async (req, res, next) => {
+    const selectedIds = req.body;
+    try {
+        await db.delete(User)
+            .where(inArray(User.id, selectedIds));
+        res.json({ message: `Selected users have been deleted successfully` });
+    } catch (error) {
+        next (error)
+    }
+}
+
+export const block = updateStatus('isBlocked', true)
+export const unblock = updateStatus('isBlocked', false)
+export const addToAdmins = updateStatus('isAdmin', true)
+export const removeFromAdmins = updateStatus('isAdmin', false)
