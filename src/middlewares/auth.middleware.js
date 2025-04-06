@@ -12,12 +12,9 @@ export const authorize = async (req, res, next) => {
     try {
         const decoded = jwt.verify(token, config.secretKey);
         const user = (await db.select().from(User).where(eq(User.id, decoded.id)))[0];
-        // if (!user) {
-        //     throw new Error('DELETED')
-        // }
-        // if (user.isBlocked) {
-        //     throw new Error('BLOCKED')
-        // }
+        if (!user) {
+            next()
+        }
         req.user = { userId: user.id, name: user.name, email: user.email, isBlocked: user.isBlocked, isAdmin: user.isAdmin };
         next()
     } catch (error) {
