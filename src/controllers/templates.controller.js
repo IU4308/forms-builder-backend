@@ -25,3 +25,12 @@ export const getTemplate = async (req, res, next) => {
         next(error)
     }
 }
+export const getUserTemplates = async (req, res, next) => {
+    const { userId } = req.params
+    try {
+        const templates = await db.select().from(Template).where(eq(Template.creatorId, userId));
+        res.json(templates)
+    } catch (error) {
+        next(error)
+    }
+}
