@@ -14,9 +14,13 @@ export const errorHandler = (error, req, res, next) => {
         return res.status(403).json({ message: 'Your account has been blocked' })
     }
 
-    if (error.message === 'DELETED') {
-        return res.status(403).json({ message: 'Your account has been deleted' })
+    if (error.code === '22P02') {
+        return res.status(404).json({ message: 'Not Found' })
     }
+
+    // if (error.message === 'DELETED') {
+    //     return res.status(403).json({ message: 'Your account has been deleted' })
+    // }
 
     if (error.code === '23505') {
         return res.status(409).json({ message: 'A user with this email already exists' })

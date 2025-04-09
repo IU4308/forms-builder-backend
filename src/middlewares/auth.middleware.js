@@ -11,7 +11,7 @@ export const authorize = async (req, res, next) => {
     }
     try {
         const decoded = jwt.verify(token, config.secretKey);
-        const user = (await db.select().from(User).where(eq(User.id, decoded.id)))[0];
+        const [user] = await db.select().from(User).where(eq(User.id, decoded.id));
         if (!user) {
             next()
         }
