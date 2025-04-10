@@ -7,6 +7,7 @@ import usersRouter from './routes/users.routes.js';
 import cookieParser from 'cookie-parser';
 import adminRouter from './routes/admin.routes.js';
 import templatesRouter from './routes/templates.routes.js';
+import formsRouter from './routes/forms.routes.js';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/admin', adminRouter)
 app.use('/api/templates', templatesRouter)
+app.use('/api/forms', formsRouter)
 
 app.use(errorHandler)
 
