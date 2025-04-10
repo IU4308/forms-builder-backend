@@ -1,6 +1,7 @@
 import { eq, inArray } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
+import { createError } from '../utils/utils.js';
 
 export const createTemplate = async (req, res, next) => {
     const template = req.body;
@@ -18,8 +19,8 @@ export const updateTemplate = async (req, res, next) => {
     const { templateId } = req.params; 
     try {
         await db.update(Template)
-                .set(updatedTemplate)
-                .where(eq(Template.id, templateId));
+            .set(updatedTemplate)
+            .where(eq(Template.id, templateId));
         res.json({ message: 'The template has been updated successfully' })
     } catch (error) {
         next (error)
@@ -41,6 +42,8 @@ export const getTemplate = async (req, res, next) => {
     const { templateId } = req.params
     try {
         const [template] = await db.select().from(Template).where(eq(Template.id, templateId));
+        if (!template) throw createError(404, 'Page Not Found')
+        console.log(template)
         res.json(template)
     } catch (error) {
         next(error)

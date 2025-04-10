@@ -14,7 +14,7 @@ export const errorHandler = (error, req, res, next) => {
         return res.status(403).json({ message: 'Your account has been blocked' })
     }
 
-    if (error.code === '22P02') {
+    if (error.code === 404 || error.code === '22P02') {
         return res.status(404).json({ message: 'Not Found' })
     }
 
