@@ -19,7 +19,7 @@ export const deleteUsers = async (req, res, next) => {
     try {
         await db.delete(User)
             .where(inArray(User.id, selectedIds));
-        res.json({ message: `Selected users have been deleted successfully` });
+        res.json({ message: `Selected user(s) have been deleted successfully` });
     } catch (error) {
         next (error)
     }

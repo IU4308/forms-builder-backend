@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 
@@ -21,6 +21,17 @@ export const updateTemplate = async (req, res, next) => {
                 .set(updatedTemplate)
                 .where(eq(Template.id, templateId));
         res.json({ message: 'The template has been updated successfully' })
+    } catch (error) {
+        next (error)
+    }
+}
+
+export const deleteTemplates = async (req, res, next) => {
+    const selectedIds = req.body
+    try {
+        await db.delete(Template)
+            .where(inArray(Template.id, selectedIds));
+        res.json({ message: `Selected template(s) have been deleted successfully` });
     } catch (error) {
         next (error)
     }
