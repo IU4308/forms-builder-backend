@@ -4,10 +4,8 @@ import { Template } from "../models/Template.js";
 
 export const createTemplate = async (req, res, next) => {
     const template = req.body;
-    console.log(template)
     try {
         const [insertedTemplate] = await db.insert(Template).values(template).returning({ id: Template.id })
-        console.log(insertedTemplate)
         res.json({ templateId: insertedTemplate.id, message: `The template has been published successfully` });
 
     } catch (error) {
@@ -15,9 +13,21 @@ export const createTemplate = async (req, res, next) => {
     }
 }
 
+export const updateTemplate = async (req, res, next) => {
+    const updatedTemplate = req.body;
+    const { templateId } = req.params; 
+    try {
+        await db.update(Template)
+                .set(updatedTemplate)
+                .where(eq(Template.id, templateId));
+        res.json({ message: 'The template has been updated successfully' })
+    } catch (error) {
+        next (error)
+    }
+}
+
 export const getTemplate = async (req, res, next) => {
     const { templateId } = req.params
-    console.log('get template request')
     try {
         const [template] = await db.select().from(Template).where(eq(Template.id, templateId));
         res.json(template)
