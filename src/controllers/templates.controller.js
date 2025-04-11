@@ -43,7 +43,6 @@ export const getTemplate = async (req, res, next) => {
     try {
         const [template] = await db.select().from(Template).where(eq(Template.id, templateId));
         if (!template) throw createError(404, 'Page Not Found')
-        console.log(template)
         res.json(template)
     } catch (error) {
         next(error)
