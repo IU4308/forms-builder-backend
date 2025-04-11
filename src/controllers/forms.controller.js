@@ -14,6 +14,18 @@ export const createForm = async (req, res, next) => {
         next(error)
     }
 }
+export const updateForm = async (req, res, next) => {
+    const updatedForm = req.body;
+    const { formId } = req.params; 
+    try {
+        await db.update(Form)
+            .set(updatedForm)
+            .where(eq(Form.id, formId));
+        res.json({ message: 'The form has been updated successfully' })
+    } catch (error) {
+        next (error)
+    }
+}
 
 export const getForm = async (req, res, next) => {
     const { formId } = req.params

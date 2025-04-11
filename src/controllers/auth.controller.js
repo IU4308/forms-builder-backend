@@ -25,7 +25,7 @@ export const login = async (req, res, next) => {
             httpOnly: true,
             secure: config.nodeEnv === 'production', 
             sameSite: config.nodeEnv === 'production' ? 'None' : 'lax', 
-            maxAge: 60 * 60 * 1000,
+            maxAge: 60 * 60 * 24 * 1000,
         })
         await db.update(User)
             .set({ lastLogin: new Date() })
