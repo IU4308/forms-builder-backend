@@ -25,9 +25,11 @@ export const getForm = async (req, res, next) => {
             .where(eq(Form.id, formId));
 
         if (!result) throw createError(404, 'Page Not Found')
-        const [credentials] = await db.select({ name: User.name, email: User.email }).from(User).where(eq(User.id, result.forms.creatorId));
+        const creatorId = result.forms.creatorId;
+        const [credentials] = await db.select({ name: User.name, email: User.email }).from(User).where(eq(User.id, creatorId));
         const mergedResult = {...result.forms, ...result.templates }
         res.json({ 
+            creatorId,
             title: result.templates.title,
             description: result.templates.description,
             credentials: credentials,
