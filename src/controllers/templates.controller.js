@@ -1,7 +1,7 @@
 import { eq, inArray } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
-import { createError } from '../utils/utils.js';
+import { createError, getFields } from '../utils/utils.js';
 
 export const createTemplate = async (req, res, next) => {
     const template = req.body;
@@ -43,7 +43,12 @@ export const getTemplate = async (req, res, next) => {
     try {
         const [template] = await db.select().from(Template).where(eq(Template.id, templateId));
         if (!template) throw createError(404, 'Page Not Found')
-        res.json(template)
+        res.json({ 
+            title: template.title,
+            description: template.description,
+            creatorId: template.creatorId,
+            fields: getFields(template) 
+        })
     } catch (error) {
         next(error)
     }
