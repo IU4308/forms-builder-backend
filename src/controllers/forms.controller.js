@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Form } from "../models/Form.js";
 import { Template } from "../models/Template.js";
@@ -27,14 +27,25 @@ export const updateForm = async (req, res, next) => {
     }
 }
 
+export const deleteForms = async (req, res, next) => {
+    const selectedIds = req.body
+    try {
+        await db.delete(Form)
+            .where(inArray(Form.id, selectedIds));
+        res.json({ message: `Selected forms(s) have been deleted successfully` });
+    } catch (error) {
+        next (error)
+    }
+}
+
 export const getForm = async (req, res, next) => {
     const { formId } = req.params
     try {
         const [result] = await db
             .select({
-                forms: Form,
-                templates: Template,
-                users: {
+                form: Form,
+                template: Template,
+                user: {
                   name: User.name,
                   email: User.email
                 }
@@ -45,18 +56,38 @@ export const getForm = async (req, res, next) => {
             .where(eq(Form.id, formId));
 
         if (!result) throw createError(404, 'Page Not Found')
-        const { forms, templates, users } = result 
+        const { form, template, user } = result 
         res.json({ 
-            creatorId: forms.authorId,
-            title: templates.title,
-            description: templates.description,
+            creatorId: form.authorId,
+            title: template.title,
+            description: template.description,
             credentials: {
-                name: users.name,
-                email: users.email
+                name: user.name,
+                email: user.email
             },
-            createdAt: forms.submittedAt,
-            fields: getFields({ ...forms, ...templates }) 
+            createdAt: form.submittedAt,
+            fields: getFields({ ...form, ...template }) 
         })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getUserForms = async (req, res, next) => {
+    const { userId } = req.params
+    try {
+        const Forms = await db
+            .select({ 
+                id: Form.id, 
+                templateId: Form.templateId,
+                title: Template.title, 
+                description: Template.description, 
+                submittedAt: Form.submittedAt
+            })
+            .from(Form)
+            .innerJoin(Template, eq(Form.templateId, Template.id))
+            .where(eq(Form.authorId, userId));
+        res.json(Forms)
     } catch (error) {
         next(error)
     }
