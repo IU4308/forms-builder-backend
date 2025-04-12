@@ -56,7 +56,14 @@ export const getTemplate = async (req, res, next) => {
 export const getUserTemplates = async (req, res, next) => {
     const { userId } = req.params
     try {
-        const templates = await db.select().from(Template).where(eq(Template.creatorId, userId));
+        const templates = await db
+            .select({ 
+                id: Template.id, 
+                title: Template.title, 
+                description: Template.description, 
+                createdAt: Template.createdAt
+            })
+            .from(Template).where(eq(Template.creatorId, userId));
         res.json(templates)
     } catch (error) {
         next(error)

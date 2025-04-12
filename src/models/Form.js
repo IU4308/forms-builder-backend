@@ -4,9 +4,9 @@ import { Template } from './Template.js';
 
 export const Form = pgTable('forms', {
   id: uuid('id').primaryKey().defaultRandom(),
-  creatorId: uuid('creator_id').references(() => User.id, { onDelete: 'cascade' }),
+  authorId: uuid('author_id').references(() => User.id, { onDelete: 'cascade' }),
   templateId: uuid('template_id').references(() => Template.id, { onDelete: 'cascade' }),
-  createdAt: timestamp('created_at').defaultNow(),
+  submittedAt: timestamp('submitted_at').defaultNow(),
 
   singleLine1Answer: varchar('single_line1_answer', { length: 255 }).default(null),
   singleLine2Answer: varchar('single_line2_answer', { length: 255 }).default(null),

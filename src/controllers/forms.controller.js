@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Form } from "../models/Form.js";
 import { Template } from "../models/Template.js";
-import { getFields } from "../utils/utils.js";
+import { createError, getFields } from "../utils/utils.js";
 import { User } from "../models/User.js";
 
 export const createForm = async (req, res, next) => {
@@ -31,22 +31,31 @@ export const getForm = async (req, res, next) => {
     const { formId } = req.params
     try {
         const [result] = await db
-            .select()
+            .select({
+                forms: Form,
+                templates: Template,
+                users: {
+                  name: User.name,
+                  email: User.email
+                }
+              })
             .from(Form)
             .innerJoin(Template, eq(Form.templateId, Template.id))
+            .innerJoin(User, eq(Form.authorId, User.id))
             .where(eq(Form.id, formId));
 
         if (!result) throw createError(404, 'Page Not Found')
-        const creatorId = result.forms.creatorId;
-        const [credentials] = await db.select({ name: User.name, email: User.email }).from(User).where(eq(User.id, creatorId));
-        const mergedResult = {...result.forms, ...result.templates }
+        const { forms, templates, users } = result 
         res.json({ 
-            creatorId,
-            title: result.templates.title,
-            description: result.templates.description,
-            credentials: credentials,
-            createdAt: result.forms.createdAt,
-            fields: getFields(mergedResult) 
+            creatorId: forms.authorId,
+            title: templates.title,
+            description: templates.description,
+            credentials: {
+                name: users.name,
+                email: users.email
+            },
+            createdAt: forms.submittedAt,
+            fields: getFields({ ...forms, ...templates }) 
         })
     } catch (error) {
         next(error)
