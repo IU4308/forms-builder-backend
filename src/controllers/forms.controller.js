@@ -49,7 +49,7 @@ export const getForm = async (req, res, next) => {
                   name: User.name,
                   email: User.email
                 }
-              })
+            })
             .from(Form)
             .innerJoin(Template, eq(Form.templateId, Template.id))
             .innerJoin(User, eq(Form.authorId, User.id))

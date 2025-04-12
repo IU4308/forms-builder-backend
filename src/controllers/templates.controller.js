@@ -1,7 +1,9 @@
 import { eq, inArray } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
+import { Form } from "../models/Form.js";
 import { createError, getFields } from '../utils/utils.js';
+import { User } from "../models/User.js";
 
 export const createTemplate = async (req, res, next) => {
     const template = req.body;
@@ -41,7 +43,10 @@ export const deleteTemplates = async (req, res, next) => {
 export const getTemplate = async (req, res, next) => {
     const { templateId } = req.params
     try {
-        const [template] = await db.select().from(Template).where(eq(Template.id, templateId));
+        const [template] = await db
+            .select()
+            .from(Template)
+            .where(eq(Template.id, templateId));
         if (!template) throw createError(404, 'Page Not Found')
         res.json({ 
             title: template.title,
@@ -65,6 +70,24 @@ export const getUserTemplates = async (req, res, next) => {
             })
             .from(Template).where(eq(Template.creatorId, userId));
         res.json(templates)
+    } catch (error) {
+        next(error)
+    }
+}
+export const getTemplateForms = async (req, res, next) => {
+    const { templateId } = req.params
+    try {
+        const result = await db
+            .select({
+                id: Form.id,
+                submittedAt: Form.submittedAt,
+                name: User.name,
+                email: User.email
+            })
+            .from(Form)
+            .innerJoin(User, eq(Form.authorId, User.id))
+            .where(eq(Form.templateId, templateId));
+        res.json(result)
     } catch (error) {
         next(error)
     }
