@@ -5,12 +5,47 @@ import { Form } from "../models/Form.js";
 import { createError, getFields } from '../utils/utils.js';
 import { User } from "../models/User.js";
 import { Topic } from "../models/Topic.js";
+import cloudinary from "../config/cloudinary.js";
 
 export const createTemplate = async (req, res, next) => {
-    const template = req.body;
     try {
-        const [insertedTemplate] = await db.insert(Template).values(template).returning({ id: Template.id })
-        res.json({ templateId: insertedTemplate.id, message: `The template has been published successfully` });
+        let imageUrl = null;
+        if (req.file) {
+            const result = await cloudinary.uploader.upload_stream(
+                { resource_type: 'image' },
+                async (error, result) => {
+                    if (error) return next(error);
+                    imageUrl = result.secure_url;
+
+                    const template = {
+                        ...req.body,
+                        imageUrl
+                    };
+
+                    const [insertedTemplate] = await db
+                        .insert(Template)
+                        .values(template)
+                        .returning({ id: Template.id });
+
+                    res.json({ 
+                        templateId: insertedTemplate.id, 
+                        message: `The template has been published successfully`
+                    });
+                }
+            );
+            result.end(req.file.buffer);
+        } else {
+            const template = req.body;
+            const [insertedTemplate] = await db
+                .insert(Template)
+                .values(template)
+                .returning({ id: Template.id });
+
+            res.json({ 
+                templateId: insertedTemplate.id, 
+                message: `The template has been published successfully`
+            });
+        }
 
     } catch (error) {
         next(error)
