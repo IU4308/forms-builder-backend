@@ -61,6 +61,7 @@ export const getForm = async (req, res, next) => {
             creatorId: form.authorId,
             title: template.title,
             description: template.description,
+            imageUrl: template.imageUrl,
             credentials: {
                 name: user.name,
                 email: user.email

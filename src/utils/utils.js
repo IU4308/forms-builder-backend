@@ -32,7 +32,7 @@ export const getFields = (form) => {
 };
 
 
-export const uploadImageBuffer = (file) => {
+export const uploadImage = (file) => {
     if (file === undefined) return null
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(

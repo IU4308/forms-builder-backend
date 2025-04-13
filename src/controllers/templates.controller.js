@@ -2,14 +2,14 @@ import { eq, inArray } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { Form } from "../models/Form.js";
-import { createError, getFields, uploadImageBuffer } from '../utils/utils.js';
+import { createError, getFields, uploadImage } from '../utils/utils.js';
 import { User } from "../models/User.js";
 import { Topic } from "../models/Topic.js";
 import { insertTemplate, updateTemplateById } from "../services/template.service.js";
 
 export const createTemplate = async (req, res, next) => {
     try {
-        const imageUrl = await uploadImageBuffer(req.file)
+        const imageUrl = await uploadImage(req.file)
         const inserted = await insertTemplate({ ...req.body, imageUrl });
         res.json({ 
             templateId: inserted.id, 
@@ -23,7 +23,7 @@ export const createTemplate = async (req, res, next) => {
 
 export const updateTemplate = async (req, res, next) => {
     try {
-        const imageUrl = await uploadImageBuffer(req.file)
+        const imageUrl = await uploadImage(req.file)
         const template = imageUrl 
             ? { ...req.body, imageUrl }
             : { ...req.body };
@@ -58,6 +58,7 @@ export const getTemplate = async (req, res, next) => {
             description: template.description,
             creatorId: template.creatorId,
             topicId: template.topicId,
+            imageUrl: template.imageUrl,
             fields: getFields(template) 
         })
     } catch (error) {
