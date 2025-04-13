@@ -2,15 +2,14 @@ import { eq, inArray } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { Form } from "../models/Form.js";
-import { createError, getFields, uploadImage } from '../utils/utils.js';
+import { createError, deleteData, getFields, insertData, updateData, uploadImage } from '../utils/utils.js';
 import { User } from "../models/User.js";
 import { Topic } from "../models/Topic.js";
-import { insertTemplate, updateTemplateById } from "../services/template.service.js";
 
 export const createTemplate = async (req, res, next) => {
     try {
         const imageUrl = await uploadImage(req.file)
-        const inserted = await insertTemplate({ ...req.body, imageUrl });
+        const inserted = await insertData(Template, { ...req.body, imageUrl })
         res.json({ 
             templateId: inserted.id, 
             message: `The template has been published successfully`
@@ -24,10 +23,10 @@ export const createTemplate = async (req, res, next) => {
 export const updateTemplate = async (req, res, next) => {
     try {
         const imageUrl = await uploadImage(req.file)
-        const template = imageUrl 
+        const updatedTemplate = imageUrl 
             ? { ...req.body, imageUrl }
             : { ...req.body };
-        await updateTemplateById(req.params.templateId, template)
+        await updateData(Template, req.params.templateId, updatedTemplate)
         res.json({ message: 'The template has been updated successfully' })
     } catch (error) {
         next (error)
@@ -35,10 +34,8 @@ export const updateTemplate = async (req, res, next) => {
 }
 
 export const deleteTemplates = async (req, res, next) => {
-    const selectedIds = req.body
     try {
-        await db.delete(Template)
-            .where(inArray(Template.id, selectedIds));
+        await deleteData(Template, req.body)
         res.json({ message: `Selected template(s) have been deleted successfully` });
     } catch (error) {
         next (error)
@@ -73,9 +70,11 @@ export const getUserTemplates = async (req, res, next) => {
                 id: Template.id, 
                 title: Template.title, 
                 description: Template.description, 
-                createdAt: Template.createdAt
+                createdAt: Template.createdAt,
+                topic: Topic.name
             })
             .from(Template)
+            .innerJoin(Topic, eq(Template.topicId, Topic.id))
             .where(eq(Template.creatorId, userId));
         res.json(templates)
     } catch (error) {

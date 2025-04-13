@@ -1,4 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
+import { db } from '../config/db.js';
+import { eq, inArray } from 'drizzle-orm';
 
 export const createError = (statusCode, message) => {
     const error = new Error(message);
@@ -45,3 +47,25 @@ export const uploadImage = (file) => {
         stream.end(file.buffer);
       });
 };
+
+export const insertData = async (model, data) => {
+    console.log(data)
+    const [inserted] = await db
+        .insert(model)
+        .values(data)
+        .returning({ id: model.id });
+    return inserted;
+};
+
+export const updateData = async (model, id, data) => {
+    await db
+        .update(model)
+        .set(data)
+        .where(eq(model.id, id));
+};
+
+export const deleteData = async (model, ids) => {
+    await db
+        .delete(model)
+        .where(inArray(model.id, ids));
+}
