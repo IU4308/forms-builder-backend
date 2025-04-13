@@ -4,6 +4,7 @@ import { Template } from "../models/Template.js";
 import { Form } from "../models/Form.js";
 import { createError, getFields } from '../utils/utils.js';
 import { User } from "../models/User.js";
+import { Topic } from "../models/Topic.js";
 
 export const createTemplate = async (req, res, next) => {
     const template = req.body;
@@ -52,6 +53,7 @@ export const getTemplate = async (req, res, next) => {
             title: template.title,
             description: template.description,
             creatorId: template.creatorId,
+            topicId: template.topicId,
             fields: getFields(template) 
         })
     } catch (error) {
@@ -68,13 +70,14 @@ export const getUserTemplates = async (req, res, next) => {
                 description: Template.description, 
                 createdAt: Template.createdAt
             })
-            .from(Template).where(eq(Template.creatorId, userId));
+            .from(Template)
+            .where(eq(Template.creatorId, userId));
         res.json(templates)
     } catch (error) {
         next(error)
     }
 }
-export const getTemplateForms = async (req, res, next) => {
+export const getTemplateData = async (req, res, next) => {
     const { templateId } = req.params
     try {
         const result = await db
@@ -87,7 +90,10 @@ export const getTemplateForms = async (req, res, next) => {
             .from(Form)
             .innerJoin(User, eq(Form.authorId, User.id))
             .where(eq(Form.templateId, templateId));
-        res.json(result)
+        const topics = await db
+            .select()
+            .from(Topic);
+        res.json({ forms: result, topics })
     } catch (error) {
         next(error)
     }

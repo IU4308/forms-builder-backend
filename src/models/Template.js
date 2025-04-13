@@ -1,13 +1,15 @@
 import { pgTable, uuid, varchar, boolean, timestamp } from 'drizzle-orm/pg-core';
 import { User } from './User.js';
+import { Topic } from './Topic.js';
+import { integer } from 'drizzle-orm/gel-core';
 
 export const Template = pgTable('templates', {
   id: uuid('id').primaryKey().defaultRandom(),
   creatorId: uuid('creator_id').references(() => User.id, { onDelete: 'cascade' }),
-
   title: varchar('title', { length: 255 }),
   description: varchar('description', { length: 255 }),
   imageUrl: varchar('image_url', { length: 255 }).default(null),
+  topicId: integer('topic_id').default(1).references(() => Topic.id, { onDelete: 'set default' }),
 
   createdAt: timestamp('created_at').defaultNow(),
 
