@@ -112,7 +112,7 @@ export const getUserTemplates = async (req, res, next) => {
         next(error)
     }
 }
-export const getTemplateData = async (req, res, next) => {
+export const getTemplateForms = async (req, res, next) => {
     const { templateId } = req.params
     try {
         const result = await db
@@ -125,10 +125,18 @@ export const getTemplateData = async (req, res, next) => {
             .from(Form)
             .innerJoin(User, eq(Form.authorId, User.id))
             .where(eq(Form.templateId, templateId));
+        res.json(result)
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getTopics = async (req, res , next) => {
+    try {
         const topics = await db
             .select()
-            .from(Topic);
-        res.json({ forms: result, topics })
+            .from(Topic)
+        res.json(topics)
     } catch (error) {
         next(error)
     }
