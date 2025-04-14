@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { db } from '../config/db.js';
 import { eq, inArray } from 'drizzle-orm';
+import { templateUsers } from '../models/TemplateUsers.js';
 
 export const createError = (statusCode, message) => {
     const error = new Error(message);
@@ -33,6 +34,17 @@ export const getFields = (form) => {
     return body;
 };
 
+export const setAllowedUsers = async (templateId, selectedIds) => {
+    if (selectedIds.length === 0) return;
+    const dataToInsert = selectedIds.split(',').map(userId => ({
+        templateId,
+        userId
+    }));
+    await db
+      .insert(templateUsers)
+      .values(dataToInsert)
+      .onConflictDoNothing();
+}
 
 export const uploadImage = (file) => {
     if (file === undefined) return null

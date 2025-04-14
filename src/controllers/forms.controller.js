@@ -4,6 +4,7 @@ import { Form } from "../models/Form.js";
 import { Template } from "../models/Template.js";
 import { createError, deleteData, getFields, insertData, updateData } from "../utils/utils.js";
 import { User } from "../models/User.js";
+import { Topic } from "../models/Topic.js";
 
 export const createForm = async (req, res, next) => {
     try {
@@ -78,11 +79,12 @@ export const getUserForms = async (req, res, next) => {
                 id: Form.id, 
                 templateId: Form.templateId,
                 title: Template.title, 
-                description: Template.description, 
+                topic: Topic.name, 
                 submittedAt: Form.submittedAt
             })
             .from(Form)
             .innerJoin(Template, eq(Form.templateId, Template.id))
+            .innerJoin(Topic, eq(Template.topicId, Topic.id))
             .where(eq(Form.authorId, userId));
         res.json(Forms)
     } catch (error) {

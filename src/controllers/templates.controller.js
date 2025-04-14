@@ -2,7 +2,7 @@ import { eq, inArray } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { Form } from "../models/Form.js";
-import { createError, deleteData, getFields, insertData, updateData, uploadImage } from '../utils/utils.js';
+import { createError, deleteData, getFields, insertData, setAllowedUsers, updateData, uploadImage } from '../utils/utils.js';
 import { User } from "../models/User.js";
 import { Topic } from "../models/Topic.js";
 import { filledFormsColumns } from "../utils/contstants.js";
@@ -22,12 +22,14 @@ export const createTemplate = async (req, res, next) => {
 }
 
 export const updateTemplate = async (req, res, next) => {
+    const { templateId } = req.params
     try {
         const imageUrl = await uploadImage(req.file)
         const updatedTemplate = imageUrl 
             ? { ...req.body, imageUrl }
             : { ...req.body };
-        await updateData(Template, req.params.templateId, updatedTemplate)
+        await updateData(Template, templateId, updatedTemplate)
+        await setAllowedUsers(templateId, req.body.selectedUsers)
         res.json({ message: 'The template has been updated successfully' })
     } catch (error) {
         next (error)
