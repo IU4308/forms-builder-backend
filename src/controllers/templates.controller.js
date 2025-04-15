@@ -29,7 +29,6 @@ export const updateTemplate = async (req, res, next) => {
         const imageUrl = await uploadImage(req.file)
         const updatedTemplate = imageUrl ? { ...req.body, imageUrl } : { ...req.body };
         await updateData(Template, templateId, updatedTemplate)
-        console.log(updatedTemplate.isPublic)
         if (updatedTemplate.isPublic === '0') await setAllowedUsers(templateId, req.body.selectedUsers)
         res.json({ message: 'The template has been updated successfully' })
     } catch (error) {
@@ -57,10 +56,10 @@ export const getTemplate = async (req, res, next) => {
             .from(Template)
             .leftJoin(TemplatesUsers, eq(Template.id, TemplatesUsers.templateId))
             .where(eq(Template.id, templateId));
+        if (!result.length) throw createError(404, 'Page Not Found')
         const { template } = result[0]
         let allowedIds = result.map(record => record.userId);
         if (allowedIds[0] === null) allowedIds = []
-        if (!template) throw createError(404, 'Page Not Found')
         res.json({ 
             title: template.title,
             description: template.description,
