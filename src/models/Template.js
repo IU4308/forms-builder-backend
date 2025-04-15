@@ -10,7 +10,7 @@ export const Template = pgTable('templates', {
   description: varchar('description', { length: 255 }),
   imageUrl: varchar('image_url', { length: 255 }).default(null),
   topicId: integer('topic_id').default(1).references(() => Topic.id, { onDelete: 'set default' }),
-
+  isPublic: boolean('is_public').default(true),
   createdAt: timestamp('created_at').defaultNow(),
 
   // Single Line Fields

@@ -6,11 +6,13 @@ import { createError, deleteData, getFields, insertData, setAllowedUsers, update
 import { User } from "../models/User.js";
 import { Topic } from "../models/Topic.js";
 import { filledFormsColumns } from "../utils/contstants.js";
+import { TemplatesUsers } from "../models/TemplatesUsers.js";
 
 export const createTemplate = async (req, res, next) => {
     try {
         const imageUrl = await uploadImage(req.file)
         const inserted = await insertData(Template, { ...req.body, imageUrl })
+        if (req.body.selectedUsers) await setAllowedUsers(inserted.id, req.body.selectedUsers)
         res.json({ 
             templateId: inserted.id, 
             message: `The template has been published successfully`
@@ -29,7 +31,7 @@ export const updateTemplate = async (req, res, next) => {
             ? { ...req.body, imageUrl }
             : { ...req.body };
         await updateData(Template, templateId, updatedTemplate)
-        await setAllowedUsers(templateId, req.body.selectedUsers)
+        if (req.body.selectedUsers) await setAllowedUsers(templateId, req.body.selectedUsers)
         res.json({ message: 'The template has been updated successfully' })
     } catch (error) {
         next (error)
@@ -48,18 +50,26 @@ export const deleteTemplates = async (req, res, next) => {
 export const getTemplate = async (req, res, next) => {
     const { templateId } = req.params
     try {
-        const [template] = await db
-            .select()
+        const result = await db
+            .select({ 
+                template: Template,  
+                userId: TemplatesUsers.userId 
+            })
             .from(Template)
+            .leftJoin(TemplatesUsers, eq(Template.id, TemplatesUsers.templateId))
             .where(eq(Template.id, templateId));
+        const { template } = result[0]
+        const allowedIds = result.map(record => record.userId)
         if (!template) throw createError(404, 'Page Not Found')
         res.json({ 
             title: template.title,
             description: template.description,
             creatorId: template.creatorId,
             topicId: template.topicId,
+            isPublic: template.isPublic,
             imageUrl: template.imageUrl,
-            fields: getFields(template) 
+            fields: getFields(template),
+            allowedIds 
         })
     } catch (error) {
         next(error)

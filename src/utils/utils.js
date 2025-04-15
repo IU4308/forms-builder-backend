@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { db } from '../config/db.js';
 import { eq, inArray } from 'drizzle-orm';
-import { templateUsers } from '../models/TemplateUsers.js';
+import { TemplatesUsers } from '../models/TemplatesUsers.js';
 
 export const createError = (statusCode, message) => {
     const error = new Error(message);
@@ -41,7 +41,7 @@ export const setAllowedUsers = async (templateId, selectedIds) => {
         userId
     }));
     await db
-      .insert(templateUsers)
+      .insert(TemplatesUsers)
       .values(dataToInsert)
       .onConflictDoNothing();
 }
