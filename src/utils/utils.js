@@ -35,15 +35,13 @@ export const getFields = (form) => {
 };
 
 export const setAllowedUsers = async (templateId, selectedIds) => {
-    if (selectedIds.length === 0) return;
     const dataToInsert = selectedIds.split(',').map(userId => ({
         templateId,
         userId
     }));
-    await db
-      .insert(TemplatesUsers)
-      .values(dataToInsert)
-      .onConflictDoNothing();
+    await db.delete(TemplatesUsers).where(eq(TemplatesUsers.templateId, templateId));
+    if (dataToInsert.length === 1 && dataToInsert[0].userId === '') return;
+    await db.insert(TemplatesUsers).values(dataToInsert).onConflictDoNothing();
 }
 
 export const uploadImage = (file) => {
