@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { Form } from "../models/Form.js";
@@ -117,4 +117,16 @@ export const getTopics = async (req, res , next) => {
     } catch (error) {
         next(error)
     }
+}
+
+export const getSearchResults = async (req, res, next) => {
+    const query = req.query.q?.toString() || '';
+    if (!query.trim()) return res.json([]);
+    const results = await db.execute(sql`
+        SELECT 
+        id, title, description, image_url
+        FROM templates
+        WHERE text_search @@ websearch_to_tsquery('english', ${query})
+      `);
+    res.json(results.rows);
 }
