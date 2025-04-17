@@ -2,6 +2,8 @@ import { v2 as cloudinary } from 'cloudinary';
 import { db } from '../config/db.js';
 import { eq, inArray } from 'drizzle-orm';
 import { TemplatesUsers } from '../models/TemplatesUsers.js';
+import { TemplatesTags } from '../models/TemplatesTags.js';
+import { Tag } from '../models/Tag.js';
 
 export const createError = (statusCode, message) => {
     const error = new Error(message);
@@ -42,6 +44,27 @@ export const setAllowedUsers = async (templateId, selectedIds) => {
     await db.delete(TemplatesUsers).where(eq(TemplatesUsers.templateId, templateId));
     if (dataToInsert.length === 1 && dataToInsert[0].userId === '') return;
     await db.insert(TemplatesUsers).values(dataToInsert).onConflictDoNothing();
+}
+
+export const setTags = async (templateId, tags) => {
+    await db.delete(TemplatesTags).where(eq(TemplatesTags.templateId, templateId));
+    if (!tags) return;
+    const tagNames = tags.split(',').map(tag => tag.trim());
+    await addNewTags(tagNames)
+    const tagRecords = await db
+        .select({ id: Tag.id })
+        .from(Tag)
+        .where(inArray(Tag.name, tagNames));
+    const dataToInsert = tagRecords.map(tag => ({
+        templateId,
+        tagId: tag.id
+    }));
+    await db.delete(TemplatesTags).where(eq(TemplatesTags.templateId, templateId));
+    await db.insert(TemplatesTags).values(dataToInsert).onConflictDoNothing();
+}
+
+export const addNewTags = async (tagNames) => {
+    await db.insert(Tag).values(tagNames.map(name => ({ name }))).onConflictDoNothing();
 }
 
 export const uploadImage = (file) => {

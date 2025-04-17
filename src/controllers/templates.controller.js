@@ -2,7 +2,7 @@ import { eq, inArray, sql } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { Form } from "../models/Form.js";
-import { createError, deleteData, getFields, insertData, setAllowedUsers, updateData, uploadImage } from '../utils/utils.js';
+import { createError, deleteData, getFields, insertData, setAllowedUsers, setTags, updateData, uploadImage } from '../utils/utils.js';
 import { User } from "../models/User.js";
 import { Topic } from "../models/Topic.js";
 import { filledFormsColumns } from "../utils/contstants.js";
@@ -28,6 +28,7 @@ export const updateTemplate = async (req, res, next) => {
     try {
         const imageUrl = await uploadImage(req.file)
         const updatedTemplate = imageUrl ? { ...req.body, imageUrl } : { ...req.body };
+        await setTags(templateId, req.body.tags)
         await updateData(Template, templateId, updatedTemplate)
         if (updatedTemplate.isPublic === '0') await setAllowedUsers(templateId, req.body.selectedUsers)
         res.json({ message: 'The template has been updated successfully' })
@@ -120,13 +121,17 @@ export const getTopics = async (req, res , next) => {
 }
 
 export const getSearchResults = async (req, res, next) => {
-    const query = req.query.q?.toString() || '';
-    if (!query.trim()) return res.json([]);
-    const results = await db.execute(sql`
-        SELECT 
-        id, title, description, image_url
-        FROM templates
-        WHERE text_search @@ websearch_to_tsquery('english', ${query})
-      `);
-    res.json(results.rows);
+    try {
+        const query = req.query.q?.toString() || '';
+        if (!query.trim()) return res.json([]);
+        const results = await db.execute(sql`
+            SELECT 
+            id, title, description, image_url
+            FROM templates
+            WHERE text_search @@ websearch_to_tsquery('english', ${query})
+          `);
+        res.json(results.rows);
+    } catch (error) {
+        next (error)
+    }
 }
