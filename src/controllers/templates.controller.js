@@ -2,11 +2,13 @@ import { eq, inArray, sql } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { Form } from "../models/Form.js";
-import { createError, deleteData, getFields, insertData, setAllowedUsers, setTags, updateData, uploadImage } from '../utils/utils.js';
+import { createError, deleteData, findAll, findOne, getFields, insertData, setAllowedUsers, setTags, updateData, uploadImage } from '../utils/utils.js';
 import { User } from "../models/User.js";
 import { Topic } from "../models/Topic.js";
 import { filledFormsColumns } from "../utils/contstants.js";
 import { TemplatesUsers } from "../models/TemplatesUsers.js";
+import { Tag } from "../models/Tag.js";
+import { TemplatesTags } from "../models/TemplatesTags.js";
 
 export const createTemplate = async (req, res, next) => {
     try {
@@ -49,27 +51,22 @@ export const deleteTemplates = async (req, res, next) => {
 export const getTemplate = async (req, res, next) => {
     const { templateId } = req.params
     try {
-        const result = await db
-            .select({ 
-                template: Template,  
-                userId: TemplatesUsers.userId 
-            })
-            .from(Template)
-            .leftJoin(TemplatesUsers, eq(Template.id, TemplatesUsers.templateId))
-            .where(eq(Template.id, templateId));
-        if (!result.length) throw createError(404, 'Page Not Found')
-        const { template } = result[0]
-        let allowedIds = result.map(record => record.userId);
-        if (allowedIds[0] === null) allowedIds = []
+        const [t, allowedUsers, tags] = await Promise.all([
+            db.select().from(Template).where(eq(Template.id, templateId)).then(res => res[0]),
+            db.select({ id: TemplatesUsers.userId }).from(TemplatesUsers).where(eq(TemplatesUsers.templateId, templateId)),
+            db.select({ id: TemplatesTags.tagId }).from(TemplatesTags).where(eq(TemplatesTags.templateId, templateId))
+        ]);
+        if (!t) throw createError(404, 'Page Not Found')
         res.json({ 
-            title: template.title,
-            description: template.description,
-            creatorId: template.creatorId,
-            topicId: template.topicId,
-            isPublic: template.isPublic,
-            imageUrl: template.imageUrl,
-            fields: getFields(template),
-            allowedIds 
+            title: t.title,
+            description: t.description,
+            creatorId: t.creatorId,
+            topicId: t.topicId,
+            isPublic: t.isPublic,
+            imageUrl: t.imageUrl,
+            fields: getFields(t),
+            allowedIds: allowedUsers.map(user => user.id),  
+            tagIds: tags.map(tag => tag.id) 
         })
     } catch (error) {
         next(error)
@@ -111,10 +108,17 @@ export const getTemplateForms = async (req, res, next) => {
 
 export const getTopics = async (req, res , next) => {
     try {
-        const topics = await db
-            .select()
-            .from(Topic)
+        const topics = await findAll(Topic)
         res.json(topics)
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getTags = async (req, res, next) => {
+    try {
+        const tags = await findAll(Tag)
+        res.json(tags)
     } catch (error) {
         next(error)
     }

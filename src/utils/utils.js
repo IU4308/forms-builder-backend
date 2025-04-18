@@ -59,7 +59,6 @@ export const setTags = async (templateId, tags) => {
         templateId,
         tagId: tag.id
     }));
-    await db.delete(TemplatesTags).where(eq(TemplatesTags.templateId, templateId));
     await db.insert(TemplatesTags).values(dataToInsert).onConflictDoNothing();
 }
 
@@ -81,8 +80,15 @@ export const uploadImage = (file) => {
       });
 };
 
+export const findAll = async (model) => {
+    return await db.select().from(model)
+}
+
+export const findOne = async (model, id) => {
+    return await db.select().from(model).where(eq(model.id, id))
+}
+
 export const insertData = async (model, data) => {
-    console.log(data)
     const [inserted] = await db
         .insert(model)
         .values(data)
