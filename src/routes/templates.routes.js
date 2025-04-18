@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { createTemplate, deleteTemplates, getSearchResults, getTags, getTemplate, getTemplateForms, getTopics, getUserTemplates, updateTemplate } from "../controllers/templates.controller.js";
+import { createTemplate, deleteTemplates, getLatestTemplates, getSearchResults, getTags, getTemplate, getTemplateForms, getTopics, getUserTemplates, updateTemplate } from "../controllers/templates.controller.js";
 import upload from "../config/upload.js";
 
 const templatesRouter = Router();
 
+templatesRouter.get('/latest', getLatestTemplates)
 templatesRouter.post('/', upload.single('image'), createTemplate)
 templatesRouter.put('/:templateId', upload.single('image'), updateTemplate)
 templatesRouter.get('/topics', getTopics)

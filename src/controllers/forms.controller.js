@@ -74,19 +74,21 @@ export const getForm = async (req, res, next) => {
 export const getUserForms = async (req, res, next) => {
     const { userId } = req.params
     try {
-        const Forms = await db
+        const forms = await db
             .select({ 
                 id: Form.id, 
                 templateId: Form.templateId,
                 title: Template.title, 
                 topic: Topic.name, 
+                author: User.name,
                 submittedAt: Form.submittedAt
             })
             .from(Form)
             .innerJoin(Template, eq(Form.templateId, Template.id))
+            .innerJoin(User, eq(Template.creatorId, User.id))
             .innerJoin(Topic, eq(Template.topicId, Topic.id))
             .where(eq(Form.authorId, userId));
-        res.json(Forms)
+        res.json(forms)
     } catch (error) {
         next(error)
     }
