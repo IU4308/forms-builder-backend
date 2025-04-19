@@ -1,4 +1,4 @@
-import { desc, eq, inArray, sql } from "drizzle-orm";
+import { count, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { Form } from "../models/Form.js";
@@ -155,8 +155,39 @@ export const getLatestTemplates = async (req, res, next) => {
             .innerJoin(User, eq(Template.creatorId, User.id))
             .orderBy(desc(Template.createdAt))
             .limit(8)
-        res.json(templates)``
+        res.json(templates)
     } catch (error) {
         next (error)
+    }
+}
+
+export const getPopularTemplates = async (req, res, next) => {
+    try {
+        const templates = await db
+            .select({
+                id: Template.id,
+                title: Template.title,
+                createdAt: Template.createdAt,
+                author: User.name,
+                topic: Topic.name,
+                submissions: count().as('submissions'),
+            })
+            .from(Form)
+            .innerJoin(Template, eq(Form.templateId, Template.id))
+            .innerJoin(User, eq(Template.creatorId, User.id))
+            .innerJoin(Topic, eq(Template.topicId, Topic.id))
+            .groupBy(
+                Template.id,
+                Form.templateId,
+                Template.title,
+                Template.createdAt,
+                User.name,
+                Topic.name
+            )
+            .orderBy(desc(count().as('submissions')))
+            .limit(8);
+        res.json(templates)
+    } catch (error) {
+        next(error)
     }
 }
