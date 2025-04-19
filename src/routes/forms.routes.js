@@ -7,6 +7,5 @@ formsRouter.post('/', createForm)
 formsRouter.post('/delete', deleteForms)
 formsRouter.get('/:formId', getForm)
 formsRouter.put('/:formId', updateForm)
-formsRouter.get('/users/:userId', getUserForms)
 
 export default formsRouter;

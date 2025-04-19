@@ -9,6 +9,7 @@ import { filledFormsColumns } from "../utils/contstants.js";
 import { TemplatesUsers } from "../models/TemplatesUsers.js";
 import { Tag } from "../models/Tag.js";
 import { TemplatesTags } from "../models/TemplatesTags.js";
+import { getUserForms } from "./forms.controller.js";
 
 export const createTemplate = async (req, res, next) => {
     try {
@@ -107,22 +108,28 @@ export const getTemplateForms = async (req, res, next) => {
     }
 }
 
-export const getUserTemplates = async (req, res, next) => {
+export const getUserData = async (req,res, next) => {
     const { userId } = req.params
     try {
-        const templates = await db
-            .select({ 
-                id: Template.id, 
-                title: Template.title, 
-                description: Template.description, 
-                createdAt: Template.createdAt,
-                topic: Topic.name
-            })
-            .from(Template)
-            .innerJoin(Topic, eq(Template.topicId, Topic.id))
-            .where(eq(Template.creatorId, userId));
-        res.json(templates)
+        res.json(await Promise.all([
+            getUserTemplates(userId),
+            getUserForms(userId)
+        ]));
     } catch (error) {
-        next(error)
+        next (error)
     }
+}
+
+export const getUserTemplates =  (userId) => {
+    return db
+        .select({ 
+            id: Template.id, 
+            title: Template.title, 
+            description: Template.description, 
+            createdAt: Template.createdAt,
+            topic: Topic.name
+        })
+        .from(Template)
+        .innerJoin(Topic, eq(Template.topicId, Topic.id))
+        .where(eq(Template.creatorId, userId));
 }
