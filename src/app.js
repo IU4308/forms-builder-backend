@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import adminRouter from './routes/admin.routes.js';
 import templatesRouter from './routes/templates.routes.js';
 import formsRouter from './routes/forms.routes.js';
+import homeRouter from './routes/home.routes.js';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(cors({
   credentials: true
 }))
 
+app.use('/api', homeRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/admin', adminRouter)

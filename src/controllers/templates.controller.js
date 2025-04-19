@@ -1,8 +1,8 @@
-import { count, desc, eq, inArray, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { Form } from "../models/Form.js";
-import { createError, deleteData, findAll, findOne, getFields, insertData, setAllowedUsers, setTags, updateData, uploadImage } from '../utils/utils.js';
+import { createError, deleteData, findAll, getFields, insertData, setAllowedUsers, setTags, updateData, uploadImage } from '../utils/utils.js';
 import { User } from "../models/User.js";
 import { Topic } from "../models/Topic.js";
 import { filledFormsColumns } from "../utils/contstants.js";
@@ -14,6 +14,7 @@ export const createTemplate = async (req, res, next) => {
     try {
         const imageUrl = await uploadImage(req.file)
         const inserted = await insertData(Template, { ...req.body, imageUrl })
+        await setTags(inserted.id, req.body.tags)
         if (req.body.selectedUsers) await setAllowedUsers(inserted.id, req.body.selectedUsers)
         res.json({ 
             templateId: inserted.id, 
@@ -72,25 +73,25 @@ export const getTemplate = async (req, res, next) => {
         next(error)
     }
 }
-export const getUserTemplates = async (req, res, next) => {
-    const { userId } = req.params
+
+export const getMetaData = async (req, res, next) => {
     try {
-        const templates = await db
-            .select({ 
-                id: Template.id, 
-                title: Template.title, 
-                description: Template.description, 
-                createdAt: Template.createdAt,
-                topic: Topic.name
-            })
-            .from(Template)
-            .innerJoin(Topic, eq(Template.topicId, Topic.id))
-            .where(eq(Template.creatorId, userId));
-        res.json(templates)
+        res.json(await Promise.all([
+            getTopics(),
+            getTags(),
+            getUsers()
+        ]));
     } catch (error) {
-        next(error)
+        next (error)
     }
 }
+
+export const getTopics = () => findAll(Topic)
+
+export const getTags = () => findAll(Tag)
+
+export const getUsers = () => db.select({ id: User.id, name: User.name, email: User.email }).from(User)
+
 export const getTemplateForms = async (req, res, next) => {
     const { templateId } = req.params
     try {
@@ -106,86 +107,20 @@ export const getTemplateForms = async (req, res, next) => {
     }
 }
 
-export const getTopics = async (req, res , next) => {
-    try {
-        const topics = await findAll(Topic)
-        res.json(topics)
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const getTags = async (req, res, next) => {
-    try {
-        const tags = await findAll(Tag)
-        res.json(tags)
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const getSearchResults = async (req, res, next) => {
-    try {
-        const query = req.query.q?.toString() || '';
-        if (!query.trim()) return res.json([]);
-        const results = await db.execute(sql`
-            SELECT 
-            id, title, description, image_url
-            FROM templates
-            WHERE text_search @@ websearch_to_tsquery('english', ${query})
-          `);
-        res.json(results.rows);
-    } catch (error) {
-        next (error)
-    }
-}
-
-export const getLatestTemplates = async (req, res, next) => {
+export const getUserTemplates = async (req, res, next) => {
+    const { userId } = req.params
     try {
         const templates = await db
-            .select({
-                id: Template.id,
-                title: Template.title,
-                description: Template.description,
-                imageUrl: Template.imageUrl,
+            .select({ 
+                id: Template.id, 
+                title: Template.title, 
+                description: Template.description, 
                 createdAt: Template.createdAt,
-                author: User.name
+                topic: Topic.name
             })
             .from(Template)
-            .innerJoin(User, eq(Template.creatorId, User.id))
-            .orderBy(desc(Template.createdAt))
-            .limit(8)
-        res.json(templates)
-    } catch (error) {
-        next (error)
-    }
-}
-
-export const getPopularTemplates = async (req, res, next) => {
-    try {
-        const templates = await db
-            .select({
-                id: Template.id,
-                title: Template.title,
-                createdAt: Template.createdAt,
-                author: User.name,
-                topic: Topic.name,
-                submissions: count().as('submissions'),
-            })
-            .from(Form)
-            .innerJoin(Template, eq(Form.templateId, Template.id))
-            .innerJoin(User, eq(Template.creatorId, User.id))
             .innerJoin(Topic, eq(Template.topicId, Topic.id))
-            .groupBy(
-                Template.id,
-                Form.templateId,
-                Template.title,
-                Template.createdAt,
-                User.name,
-                Topic.name
-            )
-            .orderBy(desc(count().as('submissions')))
-            .limit(8);
+            .where(eq(Template.creatorId, userId));
         res.json(templates)
     } catch (error) {
         next(error)
