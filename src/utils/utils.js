@@ -25,6 +25,7 @@ export const getFields = (form) => {
             let id = type + i;
             body.push({
                 id,
+                position: form[id + 'Position'],
                 isPresent: form[id + 'State'],
                 question: form[id + 'Question'],
                 description: form[id + 'Description'],
@@ -84,8 +85,8 @@ export const findAll = async (model) => {
     return await db.select().from(model)
 }
 
-export const findOne = async (model, id) => {
-    return await db.select().from(model).where(eq(model.id, id))
+export const findOneById = async (model, id) => {
+    return await db.select().from(model).where(eq(model.id, id)).then(res => res[0])
 }
 
 export const insertData = async (model, data) => {
