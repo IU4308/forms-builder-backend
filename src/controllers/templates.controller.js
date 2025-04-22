@@ -53,20 +53,20 @@ export const deleteTemplates = async (req, res, next) => {
 export const getTemplate = async (req, res, next) => {
     const { templateId } = req.params
     try {
-        const [t, allowedUsers, tags] = await Promise.all([
+        const [template, allowedUsers, tags] = await Promise.all([
             db.select().from(Template).where(eq(Template.id, templateId)).then(res => res[0]),
             db.select({ id: TemplatesUsers.userId }).from(TemplatesUsers).where(eq(TemplatesUsers.templateId, templateId)),
             db.select({ id: TemplatesTags.tagId }).from(TemplatesTags).where(eq(TemplatesTags.templateId, templateId))
         ]);
-        if (!t) throw createError(404, 'Page Not Found')
+        if (!template) throw createError(404, 'Page Not Found')
         res.json({ 
-            title: t.title,
-            description: t.description,
-            creatorId: t.creatorId,
-            topicId: t.topicId,
-            isPublic: t.isPublic,
-            imageUrl: t.imageUrl,
-            fields: getFields(t),
+            title: template.title,
+            description: template.description,
+            creatorId: template.creatorId,
+            topicId: template.topicId,
+            isPublic: template.isPublic,
+            imageUrl: template.imageUrl,
+            fields: getFields(template),
             allowedIds: allowedUsers.map(user => user.id),  
             tagIds: tags.map(tag => tag.id) 
         })

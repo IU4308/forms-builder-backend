@@ -54,8 +54,10 @@ export const getForm = async (req, res, next) => {
 
         if (!result) throw createError(404, 'Page Not Found')
         const { form, template, user } = result 
+        console.log(result)
         res.json({ 
-            creatorId: form.authorId,
+            authorId: form.authorId,
+            creatorId: template.creatorId,
             title: template.title,
             description: template.description,
             imageUrl: template.imageUrl,
