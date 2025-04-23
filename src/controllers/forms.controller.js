@@ -5,6 +5,7 @@ import { fetchForm } from "../services/forms.services.js";
 export const createForm = async (req, res, next) => {
     try {
         const insertedForm = await insertData(Form, req.body)
+        console.log(insertedForm)
         res.json({ 
             formId: insertedForm.id, 
             message: `The form has been submitted successfully` 

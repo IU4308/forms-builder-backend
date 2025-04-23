@@ -89,12 +89,12 @@ export const findOneById = async (model, id) => {
     return await db.select().from(model).where(eq(model.id, id)).then(res => res[0])
 }
 
-export const insertData = async (model, data) => {
-    const [inserted] = await db
+export const insertData = async (model, data, inserted = { id: model.id }) => {
+    return await db
         .insert(model)
         .values(data)
-        .returning({ id: model.id });
-    return inserted;
+        .returning(inserted)
+        .then(res => res[0])
 };
 
 export const updateData = async (model, id, data) => {

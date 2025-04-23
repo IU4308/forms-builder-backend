@@ -5,7 +5,9 @@ import { Form } from "../models/Form.js";
 import { createError, deleteData, getFields, insertData, setAllowedUsers, setTags, updateData, uploadImage } from '../utils/utils.js';
 import { User } from "../models/User.js";
 import { filledFormsColumns } from "../utils/contstants.js";
-import { fetchAllowedUsers, fetchTags, fetchTemplate, fetchTemplateTags, fetchTopics, fetchUserForms, fetchUsers, fetchUserTemplates } from "../services/templates.services.js";
+import { fetchAllowedUsers, fetchTags, fetchTemplate, fetchTemplateComments, fetchTemplateForms, fetchTemplateTags, fetchTopics, fetchUserForms, fetchUsers, fetchUserTemplates } from "../services/templates.services.js";
+import { Comment } from "../models/Comment.js";
+import { getSocket } from "../utils/socket.js";
 
 export const createTemplate = async (req, res, next) => {
     try {
@@ -15,7 +17,7 @@ export const createTemplate = async (req, res, next) => {
         if (req.body.selectedUsers) await setAllowedUsers(inserted.id, req.body.selectedUsers)
         res.json({ 
             templateId: inserted.id, 
-            message: `The template has been published successfully`
+            message: `Template has been published successfully`
         });
 
     } catch (error) {
@@ -31,7 +33,7 @@ export const updateTemplate = async (req, res, next) => {
         await setTags(templateId, req.body.tags)
         await updateData(Template, templateId, updatedTemplate)
         if (updatedTemplate.isPublic === '0') await setAllowedUsers(templateId, req.body.selectedUsers)
-        res.json({ message: 'The template has been updated successfully' })
+        res.json({ message: 'Template has been updated successfully' })
     } catch (error) {
         next (error)
     }
@@ -49,10 +51,11 @@ export const deleteTemplates = async (req, res, next) => {
 export const getTemplate = async (req, res, next) => {
     const { templateId } = req.params
     try {
-        const [template, allowedUsers, tags] = await Promise.all([
+        const [template, allowedUsers, tags, comments] = await Promise.all([
             fetchTemplate(templateId),
             fetchAllowedUsers(templateId),
-            fetchTemplateTags(templateId)
+            fetchTemplateTags(templateId),
+            fetchTemplateComments(templateId)
         ]);
         if (!template) throw createError(404, 'Page Not Found')
         res.json({ 
@@ -64,7 +67,8 @@ export const getTemplate = async (req, res, next) => {
             imageUrl: template.imageUrl,
             fields: getFields(template),
             allowedIds: allowedUsers.map(user => user.id),  
-            tagIds: tags.map(tag => tag.id) 
+            tagIds: tags.map(tag => tag.id),
+            comments: comments 
         })
     } catch (error) {
         next(error)
@@ -84,15 +88,10 @@ export const getMetaData = async (req, res, next) => {
 }
 
 
-export const getTemplateForms = async (req, res, next) => {
+export const getForms = async (req, res, next) => {
     const { templateId } = req.params
     try {
-        const result = await db
-            .select(filledFormsColumns)
-            .from(Form)
-            .innerJoin(User, eq(Form.authorId, User.id))
-            .innerJoin(Template, eq(Form.templateId, Template.id))
-            .where(eq(Form.templateId, templateId));
+        const result = await fetchTemplateForms(templateId);
         res.json(result)
     } catch (error) {
         next(error)
@@ -108,5 +107,25 @@ export const getUserData = async (req, res, next) => {
         ]));
     } catch (error) {
         next (error)
+    }
+}
+
+export const publishComment = async (req, res, next) => {
+    try {
+        const inserted = await insertData(Comment, req.body, { id: Comment.id, createdAt: Comment.createdAt })
+        res.json({ 
+            message: `Comment has been published successfully`,
+            comment: {
+                id: inserted.id,
+                body: req.body.body,
+                createdAt: inserted.createdAt,
+                author: {
+                    name: req.body.name,
+                    email: req.body.email
+                }
+            }
+        });
+    } catch (error) {
+        next(error)
     }
 }

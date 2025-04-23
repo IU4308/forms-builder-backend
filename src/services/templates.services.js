@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { findAll } from '../utils/utils.js';
@@ -8,6 +8,8 @@ import { Tag } from "../models/Tag.js";
 import { Form } from "../models/Form.js";
 import { TemplatesUsers } from "../models/TemplatesUsers.js";
 import { TemplatesTags } from "../models/TemplatesTags.js";
+import { filledFormsColumns } from "../utils/contstants.js";
+import { Comment } from "../models/Comment.js";
 
 export const fetchTemplate = async (templateId) => {
     return await db
@@ -17,21 +19,30 @@ export const fetchTemplate = async (templateId) => {
         .then(res => res[0])
 }
 
-export const fetchAllowedUsers = async (templateId) => {
+export const fetchAllowedUsers = (templateId) => {
     return db
         .select({ id: TemplatesUsers.userId })
         .from(TemplatesUsers)
         .where(eq(TemplatesUsers.templateId, templateId))
 }
 
-export const fetchTemplateTags = async (templateId) => {
+export const fetchTemplateTags = (templateId) => {
     return db
         .select({ id: TemplatesTags.tagId })
         .from(TemplatesTags)
         .where(eq(TemplatesTags.templateId, templateId))
 }
 
-export const fetchUserTemplates =  (userId) => {
+export const fetchTemplateForms = (templateId) => {
+    return db
+        .select(filledFormsColumns)
+        .from(Form)
+        .innerJoin(User, eq(Form.authorId, User.id))
+        .innerJoin(Template, eq(Form.templateId, Template.id))
+        .where(eq(Form.templateId, templateId))
+}
+
+export const fetchUserTemplates = (userId) => {
     return db
         .select({ 
             id: Template.id, 
@@ -67,3 +78,20 @@ export const fetchTopics = () => findAll(Topic)
 export const fetchTags = () => findAll(Tag)
 
 export const fetchUsers = () => db.select({ id: User.id, name: User.name, email: User.email }).from(User)
+
+export const fetchTemplateComments = (templateId) => {
+    return db
+        .select({ 
+            id: Comment.id, 
+            body: Comment.body, 
+            createdAt: Comment.createdAt,
+            author: {
+                name: User.name,
+                email: User.email 
+            }
+        })
+        .from(Comment)
+        .where(eq(Comment.templateId, templateId))
+        .innerJoin(User, eq(Comment.authorId, User.id))
+        .orderBy(desc(Comment.createdAt))
+}
