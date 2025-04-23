@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createForm, deleteForms, getForm, getUserForms, updateForm } from "../controllers/forms.controller.js";
+import { createForm, deleteForms, getForm, updateForm } from "../controllers/forms.controller.js";
 import { authorize } from "../middlewares/templates.middleware.js";
 
 const formsRouter = Router();

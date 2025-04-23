@@ -2,14 +2,10 @@ import { eq } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { Form } from "../models/Form.js";
-import { createError, deleteData, findAll, getFields, insertData, setAllowedUsers, setTags, updateData, uploadImage } from '../utils/utils.js';
+import { createError, deleteData, getFields, insertData, setAllowedUsers, setTags, updateData, uploadImage } from '../utils/utils.js';
 import { User } from "../models/User.js";
-import { Topic } from "../models/Topic.js";
 import { filledFormsColumns } from "../utils/contstants.js";
-import { TemplatesUsers } from "../models/TemplatesUsers.js";
-import { Tag } from "../models/Tag.js";
-import { TemplatesTags } from "../models/TemplatesTags.js";
-import { getUserForms } from "./forms.controller.js";
+import { fetchAllowedUsers, fetchTags, fetchTemplate, fetchTemplateTags, fetchTopics, fetchUserForms, fetchUsers, fetchUserTemplates } from "../services/templates.services.js";
 
 export const createTemplate = async (req, res, next) => {
     try {
@@ -54,9 +50,9 @@ export const getTemplate = async (req, res, next) => {
     const { templateId } = req.params
     try {
         const [template, allowedUsers, tags] = await Promise.all([
-            db.select().from(Template).where(eq(Template.id, templateId)).then(res => res[0]),
-            db.select({ id: TemplatesUsers.userId }).from(TemplatesUsers).where(eq(TemplatesUsers.templateId, templateId)),
-            db.select({ id: TemplatesTags.tagId }).from(TemplatesTags).where(eq(TemplatesTags.templateId, templateId))
+            fetchTemplate(templateId),
+            fetchAllowedUsers(templateId),
+            fetchTemplateTags(templateId)
         ]);
         if (!template) throw createError(404, 'Page Not Found')
         res.json({ 
@@ -78,20 +74,15 @@ export const getTemplate = async (req, res, next) => {
 export const getMetaData = async (req, res, next) => {
     try {
         res.json(await Promise.all([
-            getTopics(),
-            getTags(),
-            getUsers()
+            fetchTopics(),
+            fetchTags(),
+            fetchUsers()
         ]));
     } catch (error) {
         next (error)
     }
 }
 
-export const getTopics = () => findAll(Topic)
-
-export const getTags = () => findAll(Tag)
-
-export const getUsers = () => db.select({ id: User.id, name: User.name, email: User.email }).from(User)
 
 export const getTemplateForms = async (req, res, next) => {
     const { templateId } = req.params
@@ -108,28 +99,14 @@ export const getTemplateForms = async (req, res, next) => {
     }
 }
 
-export const getUserData = async (req,res, next) => {
+export const getUserData = async (req, res, next) => {
     const { userId } = req.params
     try {
         res.json(await Promise.all([
-            getUserTemplates(userId),
-            getUserForms(userId)
+            fetchUserTemplates(userId),
+            fetchUserForms(userId)
         ]));
     } catch (error) {
         next (error)
     }
-}
-
-export const getUserTemplates =  (userId) => {
-    return db
-        .select({ 
-            id: Template.id, 
-            title: Template.title, 
-            description: Template.description, 
-            createdAt: Template.createdAt,
-            topic: Topic.name
-        })
-        .from(Template)
-        .innerJoin(Topic, eq(Template.topicId, Topic.id))
-        .where(eq(Template.creatorId, userId));
 }
