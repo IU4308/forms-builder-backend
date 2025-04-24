@@ -112,19 +112,18 @@ export const uploadImage = (file) => {
 };
 
 export const setTags = async (templateId, newTags, tagIdsInput) => {
-    let tagIds = tagIdsInput.split(',').map(tag => Number(tag))
+    let tagIds = tagIdsInput ? tagIdsInput.split(',').map(tag => Number(tag)) : [];
     if (newTags) {
-        const newTagIds = await addNewTags(newTags.split(',').map(tag => tag.trim()))
+        const newTagIds = await addNewTags(newTags.split(','))
         tagIds = tagIds.concat(newTagIds)
     }
-    
     const dataToInsert = tagIds.map(id => ({
         templateId,
         tagId: id
     }));
-    console.log(dataToInsert)
     await db.delete(TemplatesTags).where(eq(TemplatesTags.templateId, templateId));
-    await db.insert(TemplatesTags).values(dataToInsert).onConflictDoNothing();
+    if (dataToInsert.length > 0)
+        await db.insert(TemplatesTags).values(dataToInsert).onConflictDoNothing();
 }
 
 export const addNewTags = async (tagNames) => {

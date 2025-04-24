@@ -7,7 +7,8 @@ export const createTemplate = async (req, res, next) => {
     try {
         const imageUrl = await uploadImage(req.file)
         const inserted = await insertOne(Template, { ...req.body, imageUrl })
-        await setTags(inserted.id, req.body.newTags, req.body.tagIds)
+        if (req.body.newTags || req.body.tagIds)
+            await setTags(inserted.id, req.body.newTags, req.body.tagIds)
         if (req.body.selectedUsers) await setAllowedUsers(inserted.id, req.body.selectedUsers)
         res.json({ 
             templateId: inserted.id, 
