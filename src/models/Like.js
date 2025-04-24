@@ -6,10 +6,10 @@ import {
     uniqueIndex,
     index,
   } from 'drizzle-orm/pg-core';
-import { Template } from './Template';
-import { User } from './User';
+import { Template } from './Template.js';
+import { User } from './User.js';
   
-export const likes = pgTable(
+export const Like = pgTable(
     'likes',
     {
         id: serial('id').primaryKey(),

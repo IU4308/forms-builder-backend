@@ -1,6 +1,7 @@
 import { Form } from "../models/Form.js";
 import { createError, deleteData, getFields, insertOne, updateData } from "../utils/utils.js";
 import { fetchForm } from "../services/forms.services.js";
+import { inArray } from "drizzle-orm";
 
 export const createForm = async (req, res, next) => {
     try {
@@ -24,7 +25,7 @@ export const updateForm = async (req, res, next) => {
 
 export const deleteForms = async (req, res, next) => {
     try {
-        await deleteData(Form, req.body)
+        await deleteData(Form, inArray(Form.id, req.body))
         res.json({ message: `Selected forms(s) have been deleted successfully` });
     } catch (error) {
         next (error)

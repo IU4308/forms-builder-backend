@@ -57,8 +57,14 @@ export const updateData = async (model, id, data) => {
         .where(eq(model.id, id));
 };
 
-export const deleteData = async (model, ids) => {
-    await db
-        .delete(model)
-        .where(inArray(model.id, ids));
+// export const deleteData = async (model, ids) => {
+//     await db
+//         .delete(model)
+//         .where(inArray(model.id, ids));
+// }
+
+export const deleteData = async (model, condition = eq(model.id, id)) => {
+    await db.
+        delete(model)
+        .where(condition);
 }

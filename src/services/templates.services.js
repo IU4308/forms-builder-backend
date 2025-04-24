@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { findAll } from '../utils/utils.js';
@@ -11,6 +11,7 @@ import { TemplatesTags } from "../models/TemplatesTags.js";
 import { filledFormsColumns } from "../utils/contstants.js";
 import { Comment } from "../models/Comment.js";
 import { v2 as cloudinary } from 'cloudinary';
+import { Like } from "../models/Like.js";
 
 export const fetchTemplate = async (templateId) => {
     return await db
@@ -97,6 +98,14 @@ export const fetchTemplateComments = (templateId) => {
         .orderBy(Comment.createdAt)
 }
 
+export const fetchTemplateLikes = async (templateId) => {
+    return await db
+        .select({ userId: Like.userId })
+        .from(Like)
+        .where(eq(Like.templateId, templateId))
+        .then(res => res.map(like => like.userId));
+}
+
 export const uploadImage = (file) => {
     if (file === undefined) return null
     return new Promise((resolve, reject) => {
@@ -140,3 +149,6 @@ export const setAllowedUsers = async (templateId, selectedIds) => {
     await db.insert(TemplatesUsers).values(dataToInsert).onConflictDoNothing();
 }
 
+export const addLike = (templateId, userId) => {
+    return 
+}

@@ -1,7 +1,10 @@
 import { Template } from "../models/Template.js";
 import { createError, deleteData, getFields, insertOne, updateData } from '../utils/utils.js';
-import { fetchAllowedUsers, fetchTags, fetchTemplate, fetchTemplateComments, fetchTemplateForms, fetchTemplateTags, fetchTopics, fetchUserForms, fetchUsers, fetchUserTemplates, setAllowedUsers, setTags, uploadImage } from "../services/templates.services.js";
+import { fetchAllowedUsers, fetchTags, fetchTemplate, fetchTemplateComments, fetchTemplateForms, fetchTemplateLikes, fetchTemplateTags, fetchTopics, fetchUserForms, fetchUsers, fetchUserTemplates, setAllowedUsers, setTags, uploadImage } from "../services/templates.services.js";
 import { Comment } from "../models/Comment.js";
+import { Like } from "../models/Like.js";
+import { db } from "../config/db.js";
+import { eq, inArray } from "drizzle-orm";
 
 export const createTemplate = async (req, res, next) => {
     try {
@@ -36,7 +39,7 @@ export const updateTemplate = async (req, res, next) => {
 
 export const deleteTemplates = async (req, res, next) => {
     try {
-        await deleteData(Template, req.body)
+        await deleteData(Template, inArray(Template.id, req.body))
         res.json({ message: `Selected template(s) have been deleted successfully` });
     } catch (error) {
         next (error)
@@ -46,14 +49,16 @@ export const deleteTemplates = async (req, res, next) => {
 export const getTemplate = async (req, res, next) => {
     const { templateId } = req.params
     try {
-        const [template, allowedUsers, tags, comments] = await Promise.all([
+        const [template, allowedUsers, tags, comments, likes] = await Promise.all([
             fetchTemplate(templateId),
             fetchAllowedUsers(templateId),
             fetchTemplateTags(templateId),
-            fetchTemplateComments(templateId)
+            fetchTemplateComments(templateId),
+            fetchTemplateLikes(templateId)
         ]);
         if (!template) throw createError(404, 'Page Not Found')
-        res.json({ 
+        console.log(likes)
+            res.json({ 
             title: template.title,
             description: template.description,
             creatorId: template.creatorId,
@@ -63,7 +68,8 @@ export const getTemplate = async (req, res, next) => {
             fields: getFields(template),
             allowedIds: allowedUsers.map(user => user.id),  
             tagIds: tags.map(tag => tag.id),
-            comments: comments 
+            comments, 
+            likes
         })
     } catch (error) {
         next(error)
@@ -119,6 +125,22 @@ export const publishComment = async (req, res, next) => {
                     email: req.body.email
                 }
             }
+        });
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const likeTemplate = async (req, res, next) => {
+    try {
+        const { templateId, userId, action } = req.body
+        if (action === 'add') {
+            await insertOne(Like, req.body)
+        } else if (action === 'remove') {
+            await db.delete(Like).where(eq(Like.templateId, templateId), eq(Like.userId, userId))
+        }
+        res.json({ 
+            message: `Like has been ${action === 'add' ? 'added' : 'removed'}`,
         });
     } catch (error) {
         next(error)
