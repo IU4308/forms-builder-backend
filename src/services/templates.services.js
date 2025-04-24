@@ -111,24 +111,24 @@ export const uploadImage = (file) => {
       });
 };
 
-export const setTags = async (templateId, tags) => {
-    await db.delete(TemplatesTags).where(eq(TemplatesTags.templateId, templateId));
-    if (!tags) return;
-    const tagNames = tags.split(',').map(tag => tag.trim());
-    await addNewTags(tagNames)
-    const tagRecords = await db
-        .select({ id: Tag.id })
-        .from(Tag)
-        .where(inArray(Tag.name, tagNames));
-    const dataToInsert = tagRecords.map(tag => ({
+export const setTags = async (templateId, newTags, tagIdsInput) => {
+    let tagIds = tagIdsInput.split(',').map(tag => Number(tag))
+    if (newTags) {
+        const newTagIds = await addNewTags(newTags.split(',').map(tag => tag.trim()))
+        tagIds = tagIds.concat(newTagIds)
+    }
+    
+    const dataToInsert = tagIds.map(id => ({
         templateId,
-        tagId: tag.id
+        tagId: id
     }));
+    console.log(dataToInsert)
+    await db.delete(TemplatesTags).where(eq(TemplatesTags.templateId, templateId));
     await db.insert(TemplatesTags).values(dataToInsert).onConflictDoNothing();
 }
 
 export const addNewTags = async (tagNames) => {
-    await db.insert(Tag).values(tagNames.map(name => ({ name }))).onConflictDoNothing();
+    return await db.insert(Tag).values(tagNames.map(name => ({ name }))).onConflictDoNothing().returning({ id: Tag.id }).then(res => res.map(tag => tag.id));
 }
 
 export const setAllowedUsers = async (templateId, selectedIds) => {

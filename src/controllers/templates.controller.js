@@ -7,7 +7,7 @@ export const createTemplate = async (req, res, next) => {
     try {
         const imageUrl = await uploadImage(req.file)
         const inserted = await insertOne(Template, { ...req.body, imageUrl })
-        await setTags(inserted.id, req.body.tags)
+        await setTags(inserted.id, req.body.newTags, req.body.tagIds)
         if (req.body.selectedUsers) await setAllowedUsers(inserted.id, req.body.selectedUsers)
         res.json({ 
             templateId: inserted.id, 
@@ -24,7 +24,7 @@ export const updateTemplate = async (req, res, next) => {
     try {
         const imageUrl = await uploadImage(req.file)
         const updatedTemplate = imageUrl ? { ...req.body, imageUrl } : { ...req.body };
-        await setTags(templateId, req.body.tags)
+        await setTags(templateId, req.body.newTags, req.body.tagIds)
         await updateData(Template, templateId, updatedTemplate)
         if (updatedTemplate.isPublic === '0') await setAllowedUsers(templateId, req.body.selectedUsers)
         res.json({ message: 'Template has been updated successfully' })

@@ -1,5 +1,4 @@
-import { fetchTags } from "../services/templates.services.js";
-import { fetchAllTemplates, fetchLatestTemplates, fetchPopularTemplates, fetchSearchResults, fetchTemplatesTags } from "../services/home.services.js";
+import { fetchAllTemplates, fetchLatestTemplates, fetchPopularTemplates, fetchSearchResults, fetchHomeTags, fetchTemplatesTags } from "../services/home.services.js";
 
 export const getSearchResults = async (req, res, next) => {
     try {
@@ -18,7 +17,7 @@ export const getHomeTemplates = async (req, res, next) => {
             fetchLatestTemplates(),
             fetchPopularTemplates(),
             fetchAllTemplates(),
-            fetchTags(),
+            fetchHomeTags(),
             fetchTemplatesTags()
         ]));
     } catch (error) {

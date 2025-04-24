@@ -1,4 +1,4 @@
-import { count, desc, eq, sql } from "drizzle-orm";
+import { count, desc, eq, exists, sql } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { Form } from "../models/Form.js";
@@ -76,4 +76,15 @@ export const fetchPopularTemplates = () => {
         )
         .orderBy(desc(count().as('submissions')))
         .limit(8);
+}
+
+export const fetchHomeTags = () => {
+    return  db
+        .select({
+            id: Tag.id,
+            name: Tag.name,
+        })
+        .from(Tag)
+        .innerJoin(TemplatesTags, eq(Tag.id, TemplatesTags.tagId))
+        .groupBy(Tag.id, Tag.name)
 }
