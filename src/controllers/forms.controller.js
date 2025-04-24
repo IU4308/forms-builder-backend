@@ -1,11 +1,10 @@
 import { Form } from "../models/Form.js";
-import { createError, deleteData, getFields, insertData, updateData } from "../utils/utils.js";
+import { createError, deleteData, getFields, insertOne, updateData } from "../utils/utils.js";
 import { fetchForm } from "../services/forms.services.js";
 
 export const createForm = async (req, res, next) => {
     try {
-        const insertedForm = await insertData(Form, req.body)
-        console.log(insertedForm)
+        const insertedForm = await insertOne(Form, req.body)
         res.json({ 
             formId: insertedForm.id, 
             message: `The form has been submitted successfully` 

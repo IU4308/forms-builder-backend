@@ -1,18 +1,12 @@
-import { eq } from "drizzle-orm";
-import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
-import { Form } from "../models/Form.js";
-import { createError, deleteData, getFields, insertData, setAllowedUsers, setTags, updateData, uploadImage } from '../utils/utils.js';
-import { User } from "../models/User.js";
-import { filledFormsColumns } from "../utils/contstants.js";
-import { fetchAllowedUsers, fetchTags, fetchTemplate, fetchTemplateComments, fetchTemplateForms, fetchTemplateTags, fetchTopics, fetchUserForms, fetchUsers, fetchUserTemplates } from "../services/templates.services.js";
+import { createError, deleteData, getFields, insertOne, updateData } from '../utils/utils.js';
+import { fetchAllowedUsers, fetchTags, fetchTemplate, fetchTemplateComments, fetchTemplateForms, fetchTemplateTags, fetchTopics, fetchUserForms, fetchUsers, fetchUserTemplates, setAllowedUsers, setTags, uploadImage } from "../services/templates.services.js";
 import { Comment } from "../models/Comment.js";
-import { getSocket } from "../utils/socket.js";
 
 export const createTemplate = async (req, res, next) => {
     try {
         const imageUrl = await uploadImage(req.file)
-        const inserted = await insertData(Template, { ...req.body, imageUrl })
+        const inserted = await insertOne(Template, { ...req.body, imageUrl })
         await setTags(inserted.id, req.body.tags)
         if (req.body.selectedUsers) await setAllowedUsers(inserted.id, req.body.selectedUsers)
         res.json({ 
@@ -112,7 +106,7 @@ export const getUserData = async (req, res, next) => {
 
 export const publishComment = async (req, res, next) => {
     try {
-        const inserted = await insertData(Comment, req.body, { id: Comment.id, createdAt: Comment.createdAt })
+        const inserted = await insertOne(Comment, req.body, { id: Comment.id, createdAt: Comment.createdAt })
         res.json({ 
             message: `Comment has been published successfully`,
             comment: {

@@ -5,6 +5,7 @@ import { Form } from "../models/Form.js";
 import { User } from "../models/User.js";
 import { Topic } from "../models/Topic.js";
 import { TemplatesTags } from "../models/TemplatesTags.js";
+import { Tag } from "../models/Tag.js";
 
 export const fetchSearchResults = async (query) => {
     return await db
@@ -26,7 +27,14 @@ export const fetchAllTemplates =  () =>
         createdAt: Template.createdAt,
     }).from(Template)
 
-export const fetchTemplatesTags = () => db.select({ templateId: TemplatesTags.templateId, tagId: TemplatesTags.tagId }).from(TemplatesTags)
+export const fetchTemplatesTags = () => {
+    return db
+        .select({ 
+            templateId: TemplatesTags.templateId, 
+            tagId: TemplatesTags.tagId 
+        })
+        .from(TemplatesTags)
+}
 
 export const fetchLatestTemplates = () => {
     return db
