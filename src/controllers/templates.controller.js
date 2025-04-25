@@ -1,6 +1,6 @@
 import { Template } from "../models/Template.js";
 import { createError, deleteData, getFields, insertOne, updateData } from '../utils/utils.js';
-import { fetchAllowedUsers, fetchTags, fetchTemplate, fetchTemplateComments, fetchTemplateForms, fetchTemplateLikes, fetchTemplateTags, fetchTopics, fetchUserForms, fetchUsers, fetchUserTemplates, setAllowedUsers, setTags, uploadImage } from "../services/templates.services.js";
+import { fetchAggregatedResults, fetchAllowedUsers, fetchTags, fetchTemplate, fetchTemplateComments, fetchTemplateForms, fetchTemplateLikes, fetchTemplateTags, fetchTopics, fetchUserForms, fetchUsers, fetchUserTemplates, setAllowedUsers, setTags, uploadImage } from "../services/templates.services.js";
 import { Comment } from "../models/Comment.js";
 import { Like } from "../models/Like.js";
 import { db } from "../config/db.js";
@@ -54,10 +54,9 @@ export const getTemplate = async (req, res, next) => {
             fetchAllowedUsers(templateId),
             fetchTemplateTags(templateId),
             fetchTemplateComments(templateId),
-            fetchTemplateLikes(templateId)
+            fetchTemplateLikes(templateId),
         ]);
         if (!template) throw createError(404, 'Page Not Found')
-        console.log(likes)
             res.json({ 
             title: template.title,
             description: template.description,
@@ -91,9 +90,13 @@ export const getMetaData = async (req, res, next) => {
 
 export const getForms = async (req, res, next) => {
     const { templateId } = req.params
+    const [forms, results] = await Promise.all([
+        fetchTemplateForms(templateId),
+        fetchAggregatedResults(templateId)
+    ]) 
+    console.log(results.rows)
     try {
-        const result = await fetchTemplateForms(templateId);
-        res.json(result)
+        res.json([forms, results.rows])
     } catch (error) {
         next(error)
     }

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { Template } from "../models/Template.js";
 import { findAll } from '../utils/utils.js';
@@ -149,6 +149,179 @@ export const setAllowedUsers = async (templateId, selectedIds) => {
     await db.insert(TemplatesUsers).values(dataToInsert).onConflictDoNothing();
 }
 
-export const addLike = (templateId, userId) => {
-    return 
+export const fetchAggregatedResults = async (templateId) => {
+        return await db.execute(sql`
+            SELECT question, answer, type, COUNT(*) as count
+            FROM (
+                SELECT 
+                    t.single_line1_question AS question,
+                    f.single_line1_answer AS answer,
+                    'single_line' AS type
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.single_line1_answer IS NOT NULL
+                
+                UNION ALL
+
+                SELECT 
+                    t.single_line2_question,
+                    f.single_line2_answer,
+                    'single_line'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.single_line2_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.single_line3_question,
+                    f.single_line3_answer,
+                    'single_line'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.single_line3_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.single_line3_question,
+                    f.single_line3_answer,
+                    'single_line'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.single_line3_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.single_line4_question,
+                    f.single_line4_answer,
+                    'single_line'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.single_line4_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.multiple_line1_question,
+                    f.multiple_line1_answer,
+                    'multiple_line'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.multiple_line1_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.multiple_line2_question,
+                    f.multiple_line2_answer,
+                    'multiple_line'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.multiple_line2_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.multiple_line3_question,
+                    f.multiple_line3_answer,
+                    'multiple_line'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.multiple_line3_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.multiple_line4_question,
+                    f.multiple_line4_answer,
+                    'multiple_line'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.multiple_line4_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.integer_value1_question,
+                    f.integer_value1_answer,
+                    'integer_value'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.integer_value1_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.integer_value2_question,
+                    f.integer_value2_answer,
+                    'integer_value'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.integer_value2_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.integer_value3_question,
+                    f.integer_value3_answer,
+                    'integer_value'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.integer_value3_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.integer_value4_question,
+                    f.integer_value4_answer,
+                    'integer_value'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.integer_value4_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.checkbox1_question,
+                    f.checkbox1_answer::text,
+                    'checkbox'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.checkbox1_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.checkbox2_question,
+                    f.checkbox2_answer::text,
+                    'checkbox'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.checkbox2_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.checkbox3_question,
+                    f.checkbox3_answer::text,
+                    'checkbox'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.checkbox3_answer IS NOT NULL
+
+                UNION ALL
+
+                SELECT 
+                    t.checkbox4_question,
+                    f.checkbox4_answer::text,
+                    'checkbox'
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId} AND f.checkbox4_answer IS NOT NULL
+            ) AS all_answers
+            GROUP BY question, answer, type
+            ORDER BY question, answer, type;
+    `);
 }
