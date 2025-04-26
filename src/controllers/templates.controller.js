@@ -57,7 +57,7 @@ export const getTemplate = async (req, res, next) => {
             fetchTemplateLikes(templateId),
         ]);
         if (!template) throw createError(404, 'Page Not Found')
-            res.json({ 
+        res.json({ 
             title: template.title,
             description: template.description,
             creatorId: template.creatorId,
@@ -94,7 +94,6 @@ export const getForms = async (req, res, next) => {
         fetchTemplateForms(templateId),
         fetchAggregatedResults(templateId)
     ]) 
-    console.log(results.rows)
     try {
         res.json([forms, results.rows])
     } catch (error) {

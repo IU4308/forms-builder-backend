@@ -1,5 +1,6 @@
 import { db } from '../config/db.js';
 import { eq, inArray } from 'drizzle-orm';
+import _ from 'lodash';
 
 export const createError = (statusCode, message) => {
     const error = new Error(message);
@@ -14,23 +15,40 @@ const questionTypes= [
     'checkbox',
 ];
 
-export const getFields = (form) => {
-    let body = [];
-    questionTypes.forEach((type) => {
-        for (let i = 1; i <= 4; i++) {
-            let id = type + i;
-            body.push({
-                id,
-                position: form[id + 'Position'],
-                isPresent: form[id + 'State'],
-                question: form[id + 'Question'],
-                description: form[id + 'Description'],
-                answer: form[id + 'Answer'],
-            });
-        }
-    });
+// export const getFields = (form) => {
+//     console.log(form)
+//     let body = [];
+//     questionTypes.forEach((type) => {
+//         for (let i = 1; i <= 4; i++) {
+//             let id = type + i;
+//             body.push({
+//                 id,
+//                 position: form[id + 'Position'],
+//                 isPresent: form[id + 'State'],
+//                 question: form[id + 'Question'],
+//                 description: form[id + 'Description'],
+//                 answer: form[id + 'Answer'],
+//             });
+//         }
+//     });
 
-    return body;
+//     return body;
+// };
+
+export const getFields = (form) => {
+    return _.flatMap(questionTypes, (type) => {
+        return _.range(1, 5).map((i) => {
+            const id = `${type}${i}`;
+            return {
+                id,
+                // position: form[`${id}Position`],
+                isPresent: form[`${id}State`],
+                question: form[`${id}Question`],
+                description: form[`${id}Description`],
+                answer: form[`${id}Answer`],
+            };
+        });
+    });
 };
 
 
