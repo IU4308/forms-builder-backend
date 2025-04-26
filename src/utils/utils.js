@@ -36,12 +36,12 @@ const questionTypes= [
 // };
 
 export const getFields = (form) => {
-    return _.flatMap(questionTypes, (type) => {
+    const fields = _.flatMap(questionTypes, (type) => {
         return _.range(1, 5).map((i) => {
             const id = `${type}${i}`;
             return {
                 id,
-                // position: form[`${id}Position`],
+                position: form[`${id}Position`],
                 isPresent: form[`${id}State`],
                 question: form[`${id}Question`],
                 description: form[`${id}Description`],
@@ -49,6 +49,8 @@ export const getFields = (form) => {
             };
         });
     });
+
+    return _.sortBy(fields, 'position');
 };
 
 

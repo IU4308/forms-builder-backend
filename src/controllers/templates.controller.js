@@ -57,6 +57,7 @@ export const getTemplate = async (req, res, next) => {
             fetchTemplateLikes(templateId),
         ]);
         if (!template) throw createError(404, 'Page Not Found')
+        console.log(getFields(template))
         res.json({ 
             title: template.title,
             description: template.description,
