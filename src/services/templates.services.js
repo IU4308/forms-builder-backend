@@ -150,202 +150,201 @@ export const setAllowedUsers = async (templateId, selectedIds) => {
 }
 
 export const fetchAggregatedResults = async (templateId) => {
-    console.log('Fetching aggregated results for templateId:', templateId);
-        return await db.execute(sql`
-            SELECT question, answer, type, position, COUNT(*) as count
-                FROM (
-                    SELECT 
-                        t.single_line1_question AS question,
-                        f.single_line1_answer AS answer,
-                        'single_line' AS type,
-                        t.single_line1_position AS position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.single_line1_position >= 0
+    return await db.execute(sql`
+        SELECT question, answer, type, position, COUNT(*) as count
+            FROM (
+                SELECT 
+                    t.single_line1_question AS question,
+                    f.single_line1_answer AS answer,
+                    'single_line' AS type,
+                    t.single_line1_position AS position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.single_line1_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.single_line2_question,
-                        f.single_line2_answer,
-                        'single_line',
-                        t.single_line2_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.single_line2_position >= 0
+                SELECT 
+                    t.single_line2_question,
+                    f.single_line2_answer,
+                    'single_line',
+                    t.single_line2_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.single_line2_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.single_line3_question,
-                        f.single_line3_answer,
-                        'single_line',
-                        t.single_line3_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.single_line3_position >= 0
+                SELECT 
+                    t.single_line3_question,
+                    f.single_line3_answer,
+                    'single_line',
+                    t.single_line3_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.single_line3_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.single_line4_question,
-                        f.single_line4_answer,
-                        'single_line',
-                        t.single_line4_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.single_line4_position >= 0
+                SELECT 
+                    t.single_line4_question,
+                    f.single_line4_answer,
+                    'single_line',
+                    t.single_line4_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.single_line4_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.multiple_line1_question,
-                        f.multiple_line1_answer,
-                        'multiple_line',
-                        t.multiple_line1_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.multiple_line1_position >= 0
+                SELECT 
+                    t.multiple_line1_question,
+                    f.multiple_line1_answer,
+                    'multiple_line',
+                    t.multiple_line1_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.multiple_line1_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.multiple_line2_question,
-                        f.multiple_line2_answer,
-                        'multiple_line',
-                        t.multiple_line2_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.multiple_line2_position >= 0
+                SELECT 
+                    t.multiple_line2_question,
+                    f.multiple_line2_answer,
+                    'multiple_line',
+                    t.multiple_line2_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.multiple_line2_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.multiple_line3_question,
-                        f.multiple_line3_answer,
-                        'multiple_line',
-                        t.multiple_line3_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.multiple_line3_position >= 0
+                SELECT 
+                    t.multiple_line3_question,
+                    f.multiple_line3_answer,
+                    'multiple_line',
+                    t.multiple_line3_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.multiple_line3_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.multiple_line4_question,
-                        f.multiple_line4_answer,
-                        'multiple_line',
-                        t.multiple_line4_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.multiple_line4_position >= 0
+                SELECT 
+                    t.multiple_line4_question,
+                    f.multiple_line4_answer,
+                    'multiple_line',
+                    t.multiple_line4_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.multiple_line4_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.integer_value1_question,
-                        f.integer_value1_answer,
-                        'integer_value',
-                        t.integer_value1_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.integer_value1_position >= 0
+                SELECT 
+                    t.integer_value1_question,
+                    f.integer_value1_answer,
+                    'integer_value',
+                    t.integer_value1_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.integer_value1_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.integer_value2_question,
-                        f.integer_value2_answer,
-                        'integer_value',
-                        t.integer_value2_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.integer_value2_position >= 0
+                SELECT 
+                    t.integer_value2_question,
+                    f.integer_value2_answer,
+                    'integer_value',
+                    t.integer_value2_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.integer_value2_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.integer_value3_question,
-                        f.integer_value3_answer,
-                        'integer_value',
-                        t.integer_value3_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.integer_value3_position >= 0
+                SELECT 
+                    t.integer_value3_question,
+                    f.integer_value3_answer,
+                    'integer_value',
+                    t.integer_value3_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.integer_value3_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.integer_value4_question,
-                        f.integer_value4_answer,
-                        'integer_value',
-                        t.integer_value4_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.integer_value4_position >= 0
+                SELECT 
+                    t.integer_value4_question,
+                    f.integer_value4_answer,
+                    'integer_value',
+                    t.integer_value4_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.integer_value4_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.checkbox1_question,
-                        f.checkbox1_answer::text,
-                        'checkbox',
-                        t.checkbox1_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.checkbox1_position >= 0
+                SELECT 
+                    t.checkbox1_question,
+                    f.checkbox1_answer::text,
+                    'checkbox',
+                    t.checkbox1_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.checkbox1_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.checkbox2_question,
-                        f.checkbox2_answer::text,
-                        'checkbox',
-                        t.checkbox2_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.checkbox2_position >= 0
+                SELECT 
+                    t.checkbox2_question,
+                    f.checkbox2_answer::text,
+                    'checkbox',
+                    t.checkbox2_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.checkbox2_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.checkbox3_question,
-                        f.checkbox3_answer::text,
-                        'checkbox',
-                        t.checkbox3_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.checkbox3_position >= 0
+                SELECT 
+                    t.checkbox3_question,
+                    f.checkbox3_answer::text,
+                    'checkbox',
+                    t.checkbox3_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.checkbox3_position >= 0
 
-                    UNION ALL
+                UNION ALL
 
-                    SELECT 
-                        t.checkbox4_question,
-                        f.checkbox4_answer::text,
-                        'checkbox',
-                        t.checkbox4_position
-                    FROM forms f
-                    JOIN templates t ON f.template_id = t.id
-                    WHERE f.template_id = ${templateId}
-                    AND t.checkbox4_position >= 0
-                ) AS all_answers
-                GROUP BY question, answer, type, position
-                ORDER BY position, question, answer, type;
+                SELECT 
+                    t.checkbox4_question,
+                    f.checkbox4_answer::text,
+                    'checkbox',
+                    t.checkbox4_position
+                FROM forms f
+                JOIN templates t ON f.template_id = t.id
+                WHERE f.template_id = ${templateId}
+                AND t.checkbox4_position >= 0
+            ) AS all_answers
+            GROUP BY question, answer, type, position
+            ORDER BY position, question, answer, type;
 
     `);
 }

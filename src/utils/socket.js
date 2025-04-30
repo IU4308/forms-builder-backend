@@ -1,9 +1,7 @@
 import { Server } from 'socket.io';
 
-let io;
-
 export const initializeSocket = (server) => {
-    io = new Server(server, {
+    const io = new Server(server, {
         cors: {
             origin: '*', 
         }
@@ -24,5 +22,3 @@ export const initializeSocket = (server) => {
 
     return io; 
 };
-
-export const getSocket = () => io;

@@ -49,7 +49,7 @@ export const deleteTemplates = async (req, res, next) => {
 export const getTemplate = async (req, res, next) => {
     const { templateId } = req.params
     try {
-        const [template, allowedUsers, tags, comments, likes] = await Promise.all([
+        const [template, allowedUsers, tags, comments, likedIds] = await Promise.all([
             fetchTemplate(templateId),
             fetchAllowedUsers(templateId),
             fetchTemplateTags(templateId),
@@ -68,7 +68,7 @@ export const getTemplate = async (req, res, next) => {
             allowedIds: allowedUsers.map(user => user.id),  
             tagIds: tags.map(tag => tag.id),
             comments, 
-            likes
+            likedIds
         })
     } catch (error) {
         next(error)
