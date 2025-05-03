@@ -27,15 +27,6 @@ export const fetchAllTemplates =  () =>
         createdAt: Template.createdAt,
     }).from(Template)
 
-export const fetchTemplatesTags = () => {
-    return db
-        .select({ 
-            templateId: TemplatesTags.templateId, 
-            tagId: TemplatesTags.tagId 
-        })
-        .from(TemplatesTags)
-}
-
 export const fetchLatestTemplates = () => {
     return db
         .select({
@@ -83,6 +74,8 @@ export const fetchHomeTags = () => {
         .select({
             id: Tag.id,
             name: Tag.name,
+            templateIds: sql`array_agg(${TemplatesTags.templateId})`.as('template_ids'),
+            count: sql`count(*)`.as('count')
         })
         .from(Tag)
         .innerJoin(TemplatesTags, eq(Tag.id, TemplatesTags.tagId))
