@@ -88,13 +88,13 @@ export const getMetaData = async (req, res, next) => {
 }
 
 
-export const getForms = async (req, res, next) => {
+export const getAnswers = async (req, res, next) => {
     const { templateId } = req.params
-    const [forms, results] = await Promise.all([
-        fetchTemplateForms(templateId),
-        fetchAggregatedResults(templateId)
-    ]) 
     try {
+        const [forms, results] = await Promise.all([
+            fetchTemplateForms(templateId),
+            fetchAggregatedResults(templateId)
+        ]) 
         res.json([forms, results.rows])
     } catch (error) {
         next(error)

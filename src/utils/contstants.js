@@ -7,6 +7,7 @@ export const filledFormsColumns = {
     name: User.name,
     email: User.email,
     submittedAt: Form.submittedAt,
+
     singleLine1State: Template.singleLine1State,
     singleLine2State: Template.singleLine2State,
     singleLine3State: Template.singleLine3State,
@@ -23,6 +24,7 @@ export const filledFormsColumns = {
     checkbox2State: Template.checkbox2State,
     checkbox3State: Template.checkbox3State,
     checkbox4State: Template.checkbox4State,
+
     singleLine1Question: Template.singleLine1Question,
     singleLine2Question: Template.singleLine2Question,
     singleLine3Question: Template.singleLine3Question,
@@ -39,6 +41,7 @@ export const filledFormsColumns = {
     checkbox2Question: Template.checkbox2Question,
     checkbox3Question: Template.checkbox3Question,
     checkbox4Question: Template.checkbox4Question,
+
     singleLine1Answer: Form.singleLine1Answer,
     singleLine2Answer: Form.singleLine2Answer,
     singleLine3Answer: Form.singleLine3Answer,
@@ -55,4 +58,21 @@ export const filledFormsColumns = {
     checkbox2Answer: Form.checkbox2Answer,
     checkbox3Answer: Form.checkbox3Answer,
     checkbox4Answer: Form.checkbox4Answer,
+
+    singleLine1Position: Template.singleLine1Position,
+    singleLine2Position: Template.singleLine2Position,
+    singleLine3Position: Template.singleLine3Position,
+    singleLine4Position: Template.singleLine4Position,
+    multipleLine1Position: Template.multipleLine1Position,
+    multipleLine2Position: Template.multipleLine2Position,
+    multipleLine3Position: Template.multipleLine3Position,
+    multipleLine4Position: Template.multipleLine4Position,
+    integerValue1Position: Template.integerValue1Position,
+    integerValue2Position: Template.integerValue2Position,
+    integerValue3Position: Template.integerValue3Position,
+    integerValue4Position: Template.integerValue4Position,
+    checkbox1Position: Template.checkbox1Position,
+    checkbox2Position: Template.checkbox2Position,
+    checkbox3Position: Template.checkbox3Position,
+    checkbox4Position: Template.checkbox4Position,
 }
