@@ -9,7 +9,6 @@ export const login = async (req, res, next) => {
     const { email, password } = req.body
     try {
         const [user] = await db.select().from(User).where(eq(User.email, email))
-        console.log(user)
         if (!user || !(await bcrypt.compare(password, user.password))) {
             throw new Error('INVALID_CREDENTIALS')
         }

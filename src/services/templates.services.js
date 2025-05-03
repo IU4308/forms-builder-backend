@@ -136,7 +136,12 @@ export const setTags = async (templateId, newTags, tagIdsInput) => {
 }
 
 export const addNewTags = async (tagNames) => {
-    return await db.insert(Tag).values(tagNames.map(name => ({ name }))).onConflictDoNothing().returning({ id: Tag.id }).then(res => res.map(tag => tag.id));
+    return await db
+        .insert(Tag)
+        .values(tagNames.map(name => ({ name })))
+        .onConflictDoNothing()
+        .returning({ id: Tag.id })
+        .then(res => res.map(tag => tag.id));
 }
 
 export const setAllowedUsers = async (templateId, selectedIds) => {
@@ -344,7 +349,7 @@ export const fetchAggregatedResults = async (templateId) => {
                 AND t.checkbox4_position >= 0
             ) AS all_answers
             GROUP BY question, answer, type, position
-            ORDER BY position, question, answer, type;
+            ORDER BY position;
 
     `);
 }

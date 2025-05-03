@@ -1,6 +1,5 @@
 import { db } from "../config/db.js";
 import { User } from "../models/User.js";
-import { eq } from "drizzle-orm";
 
 export const getUsers = async (req, res, next) => {
     try {
