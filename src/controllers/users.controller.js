@@ -2,6 +2,7 @@ import axios from "axios";
 import { User } from "../models/User.js";
 import { findAll, findOneById } from "../utils/utils.js";
 import config from "../config/env.js";
+import { getAccesToken } from "../config/salesforce-token.js";
 
 export const getUsers = async (req, res, next) => {
     try {
@@ -23,6 +24,7 @@ export const getUserById = async (req, res, next) => {
 export const createSalesforseAccount = async (req, res, next) => {
     const { name, email, phone, leadSource, consent } = req.body;
     try {
+        const { access_token, instance_url } = await getAccesToken();
 
         const payload = {
         allOrNone: true,
@@ -53,18 +55,26 @@ export const createSalesforseAccount = async (req, res, next) => {
         };
 
         const result = await axios.post(
-            `${config.sfInstanceUrl}/services/data/v63.0/composite`,
+            `${instance_url}/services/data/v63.0/composite`,
             payload,
             {
                 headers: {
-                    Authorization: `Bearer ${config.sfAccessToken}`,
+                    Authorization: `Bearer ${access_token}`,
                     'Content-Type': 'application/json',
                 },
             }
         );
 
-    res.status(200).json(result.data);
+    res.json({
+        result: result.data,
+        message: 'Information has been saved'
+    });
     } catch (error) {
-        next(error)
-    }
+        if (error.response) {
+          console.error('Salesforce error:', error.response.data);
+        } else {
+          console.error('Unexpected error:', error.message);
+        }
+        throw error;
+      }
 }
