@@ -88,3 +88,43 @@ export const deleteData = async (model, condition = eq(model.id, id)) => {
         delete(model)
         .where(condition);
 }
+
+
+export const generateApiToken = (apiUrl) => {
+    const data = {
+        api_url: apiUrl
+    };
+
+    const jsonString = JSON.stringify(data);
+    const base64Token = Buffer.from(jsonString).toString('base64');
+
+    return base64Token;
+};
+
+export const groupResults = (data) => {
+    return _.chain(data)
+        .groupBy((item) => `${item.template_title}|${item.template_author}|${item.question}|${item.type}`)
+        .map((answers, compositeKey) => {
+            const [template_title, template_author, question, type] = compositeKey.split('|');
+            const validAnswers = 
+                answers.filter(
+                    ({ answer }) => answer !== null && answer.trim() !== ''
+                )
+            
+            const answersCount = _.sumBy(validAnswers, ({ count }) => Number(count)) 
+
+            const aggregation = type === 'integer_value' 
+            ? _.sumBy(validAnswers, (({ answer,count }) => Number(answer) * Number(count))) / answersCount
+            : _.maxBy(validAnswers, (({ count }) => count)).answer
+
+            return {
+                template_title,
+                template_author,
+                question,
+                type,
+                aggregation,
+                answersCount,
+            };
+        })
+        .value();
+};

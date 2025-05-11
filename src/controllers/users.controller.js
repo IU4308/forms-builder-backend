@@ -1,8 +1,9 @@
 import axios from "axios";
 import { User } from "../models/User.js";
-import { findAll, findOneById } from "../utils/utils.js";
+import { findAll, findOneById, generateApiToken, groupResults } from "../utils/utils.js";
 import { Connection } from 'jsforce';
 import config from "../config/env.js";
+import { fetchAggregatedResults } from "../services/users.services.js";
 
 export const getUsers = async (req, res, next) => {
     try {
@@ -57,6 +58,25 @@ export const createSalesforseAccount = async (req, res, next) => {
       
         res.json({ message: 'Saved successfully', result });
     } catch (error) {
+        next(error)
+    }
+}
+
+export const getToken = (req, res, next) => {
+    const { userId } = req.params
+    try {
+        res.json(generateApiToken(`${config.BASE_URL}/api/users/${userId}/export`))
+    } catch (error) {
+        next (error)
+    }
+}
+
+export const exportTemplates = async (req, res, next) => {
+    const { userId } = req.params
+    try {
+        const results = await fetchAggregatedResults(userId)
+        res.json(groupResults(results.rows))
+    } catch(error) {
         next(error)
     }
 }
