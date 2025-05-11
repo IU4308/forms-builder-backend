@@ -106,8 +106,8 @@ export const groupResults = (data) => {
         .groupBy((item) => `${item.template_title}|${item.template_author}|${item.question}|${item.type}`)
         .map((answers, compositeKey) => {
             const [template_title, template_author, question, type] = compositeKey.split('|');
-            const validAnswers = 
-                answers.filter(
+            const validAnswers = answers
+                .filter(
                     ({ answer }) => answer !== null && answer.trim() !== ''
                 )
             
@@ -115,7 +115,7 @@ export const groupResults = (data) => {
 
             const aggregation = type === 'integer_value' 
             ? _.sumBy(validAnswers, (({ answer,count }) => Number(answer) * Number(count))) / answersCount
-            : _.maxBy(validAnswers, (({ count }) => count)).answer
+            : _.maxBy(validAnswers, (({ count }) => count))?.answer
 
             return {
                 template_title,
