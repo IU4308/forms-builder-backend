@@ -14,6 +14,9 @@ const config = {
     SF_LOGIN_URL: process.env.SF_LOGIN_URL,
     SF_USERNAME: process.env.SF_USERNAME,
     SF_PASSWORD: process.env.SF_PASSWORD,
+    DROPBOX_CLIENT_ID: process.env.DROPBOX_CLIENT_ID,
+    DROPBOX_CLIENT_SECRET: process.env.DROPBOX_CLIENT_SECRET,
+    DROPBOX_REFRESH_TOKEN: process.env.DROPBOX_REFRESH_TOKEN,
 };
 
 export default config;

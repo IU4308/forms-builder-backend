@@ -1,9 +1,10 @@
-import axios from "axios";
 import { User } from "../models/User.js";
 import { findAll, findOneById, generateApiToken, groupResults } from "../utils/utils.js";
 import { Connection } from 'jsforce';
 import config from "../config/env.js";
 import { fetchAggregatedResults } from "../services/users.services.js";
+import { Dropbox } from 'dropbox'
+import fetch from 'node-fetch'
 
 export const getUsers = async (req, res, next) => {
     try {
@@ -76,6 +77,32 @@ export const exportTemplates = async (req, res, next) => {
     try {
         const results = await fetchAggregatedResults(userId)
         res.json(groupResults(results.rows))
+    } catch(error) {
+        next(error)
+    }
+}
+
+export const uploadReport = async (req, res, next) => {
+    try {
+        const jsonData = JSON.stringify(req.body);
+        const fileName = `/reports/report-${Date.now()}.json`;
+
+        const dbx = new Dropbox({
+            clientId: config.DROPBOX_CLIENT_ID,
+            clientSecret: config.DROPBOX_CLIENT_SECRET,
+            refreshToken: config.DROPBOX_REFRESH_TOKEN,
+            fetch,
+        });
+
+        const response = await dbx.filesUpload({
+            path: fileName,
+            contents: jsonData,
+            mode: 'add', 
+            autorename: true,
+            mute: true,
+        })
+
+        res.status(200).json({ result: response.result, message: 'The report has been sent.' });
     } catch(error) {
         next(error)
     }

@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { createSalesforseAccount, exportTemplates, getToken, getUserById, getUsers } from "../controllers/users.controller.js";
+import { createSalesforseAccount, exportTemplates, getToken, getUserById, getUsers, uploadReport } from "../controllers/users.controller.js";
 
 const usersRouter = Router();
 
 usersRouter.get('/', getUsers)
+usersRouter.post('/', uploadReport)
 usersRouter.get('/:userId', getUserById)
 usersRouter.get('/:userId/token', getToken)
 usersRouter.get('/:userId/export', exportTemplates)

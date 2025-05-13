@@ -1,5 +1,5 @@
 import { db } from '../config/db.js';
-import { eq, inArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import _ from 'lodash';
 
 export const createError = (statusCode, message) => {
@@ -128,3 +128,4 @@ export const groupResults = (data) => {
         })
         .value();
 };
+
